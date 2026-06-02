@@ -1,0 +1,15 @@
+.git
+.gitignore
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.env
+.env.local
+.env.*.local
+.claude/
+README.md
+docker-compose.yml

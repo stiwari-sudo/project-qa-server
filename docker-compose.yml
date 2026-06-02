@@ -1,0 +1,76 @@
+# =============================================================================
+# HTS Project QA — full-stack dev orchestration (db + api + web).
+#
+# This app is split across two repos that must be checked out as SIBLINGS:
+#   <parent>/
+#   ├── project-qa-server/   (this repo — FastAPI API)
+#   └── project-qa-ui/       (the Next.js web app)
+#
+# This compose file is duplicated, identical, in both repos, so you can run it
+# from whichever you cloned. From either repo directory:
+#   cp .env.compose.example .env && docker compose up --build
+# =============================================================================
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-qa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qa}
+      POSTGRES_DB: ${POSTGRES_DB:-projectqa}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-qa} -d ${POSTGRES_DB:-projectqa}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ../project-qa-server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      API_V1_PREFIX: ${API_V1_PREFIX:-/api/v1}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-qa}:${POSTGRES_PASSWORD:-qa}@db:5432/${POSTGRES_DB:-projectqa}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-dev}
+      DEV_USER_EMAIL: ${DEV_USER_EMAIL:-engineer@hts.uk.com}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:-}
+      AZURE_AUDIENCE: ${AZURE_AUDIENCE:-}
+      CONSTRUCTION_SOURCE: ${CONSTRUCTION_SOURCE:-site}
+      CALC_PACK_QUESTION_IDS: ${CALC_PACK_QUESTION_IDS:-q_detailed_sd_5,q_pretender_sd_5,q_precon_sd_5}
+      REMINDER_OFFSETS: ${REMINDER_OFFSETS:-14,7,3,1}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-qa-noreply@hts.uk.com}
+      SMTP_TLS: ${SMTP_TLS:-true}
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+  web:
+    build:
+      context: ../project-qa-ui
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api/v1}
+        NEXT_PUBLIC_DEV_USER_EMAIL: ${DEV_USER_EMAIL:-engineer@hts.uk.com}
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api/v1}
+      NEXT_PUBLIC_DEV_USER_EMAIL: ${DEV_USER_EMAIL:-engineer@hts.uk.com}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+volumes:
+  pgdata:
