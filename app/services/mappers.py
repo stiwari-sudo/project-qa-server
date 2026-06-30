@@ -23,6 +23,7 @@ def project_to_out(p: Project) -> ProjectOut:
         director_name=p.director.display_name if p.director else None,
         manager_id=p.manager_id,
         manager_name=p.manager.display_name if p.manager else None,
+        cmap_stage=p.cmap_stage,
     )
 
 
@@ -32,6 +33,8 @@ def response_to_out(pr: QaProjectResponse) -> ResponseOut:
         project_id=pr.project_id,
         project_number=pr.project.number,
         project_name=pr.project.name,
+        building_id=pr.building_id,
+        building_name=pr.building.name,
         form_id=pr.form_id,
         form_name=pr.form.name,
         stage_id=pr.stage_id,
@@ -69,15 +72,20 @@ def event_log_to_out(e: QaEventLog) -> EventLogOut:
     )
 
 
-def hrb_to_out(h: QaHighRiskBuilding) -> HrbOut:
+def hrb_to_out(
+    h: QaHighRiskBuilding, qa_completion_pct: float | None = None
+) -> HrbOut:
     return HrbOut(
         id=h.id,
         project_id=h.project_id,
         project_number=h.project.number,
         project_name=h.project.name,
+        building_id=h.building_id,
+        building_name=h.building.name,
         manager_name=h.project.manager.display_name if h.project.manager else None,
         stage_id=h.stage_id,
         stage_name=h.stage.name if h.stage else None,
+        qa_completion_pct=qa_completion_pct,
         is_high_risk=h.is_high_risk,
         checked_by_id=h.checked_by_id,
         checked_by_name=h.checked_by.display_name if h.checked_by else None,

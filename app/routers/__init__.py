@@ -3,6 +3,9 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.routers import (
+    admin,
+    building_control,
+    buildings,
     event_logs,
     forms,
     hrb,
@@ -19,10 +22,13 @@ api_router.include_router(users.router)
 api_router.include_router(stages.router)
 api_router.include_router(forms.router)
 api_router.include_router(projects.router)
+api_router.include_router(buildings.router)
 api_router.include_router(responses.router)
 api_router.include_router(stats.router)
 api_router.include_router(overview.router)
 api_router.include_router(event_logs.router)
 api_router.include_router(hrb.router)
+api_router.include_router(building_control.router)
+api_router.include_router(admin.router)
 
 __all__ = ["api_router"]

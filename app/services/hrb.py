@@ -8,8 +8,9 @@ from app.core.exceptions import NotFoundError
 from app.models.hrb import QaHighRiskBuilding
 from app.models.user import User
 from app.repositories import hrb as hrb_repo
-from app.repositories import projects as projects_repo
+from app.repositories import responses as responses_repo
 from app.schemas.hrb import HrbCreate, HrbOut, HrbUpdate
+from app.services import buildings as buildings_service
 from app.services.mappers import hrb_to_out
 
 
@@ -26,7 +27,25 @@ async def list_hrb(
         stage_id=stage_id,
         is_high_risk=is_high_risk,
     )
-    return [hrb_to_out(r) for r in rows]
+    # Group each project's stages together in QA lifecycle order.
+    rows = sorted(
+        rows,
+        key=lambda r: (r.project.number, r.stage.order if r.stage else -1),
+    )
+    # Join each (project, stage) to that stage's QA-form completion % — the same
+    # number the project detail view's completion ring shows for the stage.
+    project_ids = list({r.project_id for r in rows})
+    responses = await responses_repo.list_for_projects(session, project_ids)
+    # Keyed by (building, stage); HRB rows may have a null stage, so the key type
+    # widens to match the lookup below (a null stage simply finds no completion).
+    completion_by_stage: dict[tuple[uuid.UUID, uuid.UUID | None], float] = {
+        (resp.building_id, resp.stage_id): resp.completion_percentage
+        for resp in responses
+    }
+    return [
+        hrb_to_out(r, completion_by_stage.get((r.building_id, r.stage_id)))
+        for r in rows
+    ]
 
 
 async def get_hrb(session: AsyncSession, hrb_id: uuid.UUID) -> HrbOut:
@@ -39,13 +58,14 @@ async def get_hrb(session: AsyncSession, hrb_id: uuid.UUID) -> HrbOut:
 async def upsert_hrb(
     session: AsyncSession, payload: HrbCreate, user: User
 ) -> HrbOut:
-    """Manual create/update honouring the (project, stage) uniqueness."""
-    project = await projects_repo.get_by_id(session, payload.project_id)
-    if project is None:
-        raise NotFoundError("Project not found")
+    """Manual create/update honouring the (building, stage) uniqueness. The
+    building defaults to the project's primary one when the caller omits it."""
+    building = await buildings_service.resolve_building(
+        session, payload.project_id, payload.building_id
+    )
 
-    existing = await hrb_repo.get_by_project_stage(
-        session, payload.project_id, payload.stage_id
+    existing = await hrb_repo.get_by_building_stage(
+        session, building.id, payload.stage_id
     )
     if existing is not None:
         existing.is_high_risk = payload.is_high_risk
@@ -59,7 +79,8 @@ async def upsert_hrb(
     created = await hrb_repo.add(
         session,
         QaHighRiskBuilding(
-            project_id=payload.project_id,
+            project_id=building.project_id,
+            building_id=building.id,
             stage_id=payload.stage_id,
             is_high_risk=payload.is_high_risk,
             notes=payload.notes,

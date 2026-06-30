@@ -9,7 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import CurrentUser
 from app.core.db import get_session
 from app.models.event_log import Discipline
-from app.schemas.event_log import EventLogCreate, EventLogOut, EventLogUpdate
+from app.schemas.event_log import (
+    EventLogAnalysis,
+    EventLogCreate,
+    EventLogOut,
+    EventLogUpdate,
+)
 from app.services import event_logs as event_logs_service
 
 router = APIRouter(prefix="/event-logs", tags=["event-logs"])
@@ -25,6 +30,37 @@ async def list_event_logs(
 ) -> list[EventLogOut]:
     return await event_logs_service.list_event_logs(
         session, project_id=project, stage_id=stage, discipline=discipline
+    )
+
+
+@router.get("/analysis", response_model=EventLogAnalysis)
+async def event_log_analysis(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    _: CurrentUser,
+    project: uuid.UUID | None = None,
+    stage: uuid.UUID | None = None,
+    discipline: Discipline | None = None,
+) -> EventLogAnalysis:
+    return await event_logs_service.analyse_event_logs(
+        session, project_id=project, stage_id=stage, discipline=discipline
+    )
+
+
+@router.get("/export")
+async def export_event_logs(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    _: CurrentUser,
+    project: uuid.UUID | None = None,
+    stage: uuid.UUID | None = None,
+    discipline: Discipline | None = None,
+) -> Response:
+    csv_text = await event_logs_service.export_event_logs_csv(
+        session, project_id=project, stage_id=stage, discipline=discipline
+    )
+    return Response(
+        content=csv_text,
+        media_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="event-logs.csv"'},
     )
 
 

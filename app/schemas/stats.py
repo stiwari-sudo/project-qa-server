@@ -20,6 +20,7 @@ class ProjectStageStat(BaseModel):
 
 class StageCompletion(BaseModel):
     stage_id: uuid.UUID
+    stage_name: str
     stage_order: int
     total_questions: int
     answered_questions: int
@@ -36,6 +37,7 @@ class AllProjectsStatsRow(BaseModel):
     manager_id: uuid.UUID | None = None
     manager_name: str | None = None
     latest_qa_stage: str | None = None
+    cmap_stage: str | None = None
     total_questions: int
     total_answered: int
     completion_rate: float

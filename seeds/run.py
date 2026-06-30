@@ -16,6 +16,7 @@ async def run() -> None:
         await forms.seed(session)
         await sample.seed_projects(session)
         await sample.seed_hrb(session)
+        await sample.seed_event_logs(session)
         await session.commit()
     log.info("seeds.complete")
 

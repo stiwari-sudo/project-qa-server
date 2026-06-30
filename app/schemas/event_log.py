@@ -44,3 +44,15 @@ class EventLogUpdate(BaseModel):
     category_of_impact: str | None = None
     stage_id: uuid.UUID | None = None
     discipline: Discipline | None = None
+
+
+class AnalysisBucket(OrmBase):
+    key: str
+    count: int
+
+
+class EventLogAnalysis(OrmBase):
+    total: int
+    by_discipline: list[AnalysisBucket]
+    by_category: list[AnalysisBucket]
+    by_stage: list[AnalysisBucket]

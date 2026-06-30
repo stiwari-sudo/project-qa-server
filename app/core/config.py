@@ -1,16 +1,24 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Load .env from the project root (projectqa-api/) regardless of the process's
+# working directory — config.py is at projectqa-api/app/core/, so parents[2] is
+# projectqa-api/. Launching uvicorn from elsewhere previously skipped .env and
+# silently fell back to the defaults (wrong DB → InvalidPassword, wrong auth).
+# Real environment variables still take precedence over the file.
+_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
     """Application settings, loaded from environment / .env."""
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=str(_ENV_FILE), env_file_encoding="utf-8", extra="ignore"
     )
 
     app_env: str = Field(default="development")
@@ -35,6 +43,9 @@ class Settings(BaseSettings):
 
     # Director overview — how "construction stage" is detected: "site" | "cmap".
     construction_source: str = Field(default="site")
+    # Which stage order the "site" proxy treats as construction (Site=5 by
+    # default; set to 4=Pre-construction for datasets with no Site-stage QA).
+    construction_stage_order: int = Field(default=5)
     # Calc-pack tracked question ids (comma-separated). Overview marks a project
     # complete when any of these answers Yes (not No/N-A).
     calc_pack_question_ids: str = Field(

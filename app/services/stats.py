@@ -7,12 +7,12 @@ from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError
 from app.repositories import projects as projects_repo
 from app.repositories import responses as responses_repo
 from app.repositories import stages as stages_repo
 from app.schemas.common import Paginated
 from app.schemas.stats import AllProjectsStatsRow, ProjectStageStat, StageCompletion
+from app.services import buildings as buildings_service
 
 
 def _stage_status(total: int, answered: int, pct: float) -> str:
@@ -24,14 +24,16 @@ def _stage_status(total: int, answered: int, pct: float) -> str:
 
 
 async def project_stats(
-    session: AsyncSession, project_id: uuid.UUID
+    session: AsyncSession,
+    project_id: uuid.UUID,
+    building_id: uuid.UUID | None = None,
 ) -> list[ProjectStageStat]:
-    project = await projects_repo.get_by_id(session, project_id)
-    if project is None:
-        raise NotFoundError("Project not found")
+    # Per-stage breakdown for one building. ``building_id`` is optional — omit it
+    # for single-building projects and the primary ("Main") building is used.
+    building = await buildings_service.resolve_building(session, project_id, building_id)
 
     stages = await stages_repo.list_ordered(session)
-    responses = await responses_repo.list_for_project(session, project_id)
+    responses = await responses_repo.list_for_building(session, building.id)
     by_stage = {r.stage_id: r for r in responses}
 
     out: list[ProjectStageStat] = []
@@ -86,8 +88,13 @@ async def all_projects_stats(
     manager_id: uuid.UUID | None = None,
     stage: str | None = None,
     status: str | None = None,
+    visible_project_ids: set[uuid.UUID] | None = None,
 ) -> Paginated[AllProjectsStatsRow]:
     projects = list(await projects_repo.list_active(session))
+    # Restrict to a caller-supplied allow-list (engineer's own projects, or a
+    # "scope=mine" request). None means no restriction (view-all roles).
+    if visible_project_ids is not None:
+        projects = [p for p in projects if p.id in visible_project_ids]
     project_ids = [p.id for p in projects]
     responses = await responses_repo.list_for_projects(session, project_ids)
 
@@ -115,6 +122,7 @@ async def all_projects_stats(
             )
             stage_completion[stage_name] = StageCompletion(
                 stage_id=r.stage_id,
+                stage_name=stage_name,
                 stage_order=r.stage.order,
                 total_questions=r.total_questions,
                 answered_questions=r.answered_questions,
@@ -149,6 +157,7 @@ async def all_projects_stats(
                 manager_id=p.manager_id,
                 manager_name=p.manager.display_name if p.manager else None,
                 latest_qa_stage=latest_stage_name,
+                cmap_stage=p.cmap_stage,
                 total_questions=total_questions,
                 total_answered=total_answered,
                 completion_rate=completion_rate,

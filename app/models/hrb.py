@@ -7,22 +7,26 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPkMixin
+from app.models.building import Building
 from app.models.project import Project
 from app.models.stage import Stage
 from app.models.user import User
 
 
 class QaHighRiskBuilding(UUIDPkMixin, TimestampMixin, Base):
-    """High-Risk-Building (Building Safety Act 2022) status per project per stage."""
+    """High-Risk-Building (Building Safety Act 2022) status per building per stage."""
 
     __tablename__ = "qa_high_risk_buildings"
     __table_args__ = (
-        UniqueConstraint("project_id", "stage_id", name="uq_hrb_project_stage"),
+        UniqueConstraint("building_id", "stage_id", name="uq_hrb_building_stage"),
         Index("ix_hrb_is_high_risk", "is_high_risk"),
     )
 
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False
+    )
+    building_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("buildings.id", ondelete="CASCADE"), nullable=False
     )
     stage_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("stages.id", ondelete="SET NULL"), nullable=True
@@ -34,6 +38,7 @@ class QaHighRiskBuilding(UUIDPkMixin, TimestampMixin, Base):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     project: Mapped[Project] = relationship("Project")
+    building: Mapped[Building] = relationship("Building")
     stage: Mapped[Stage | None] = relationship("Stage")
     checked_by: Mapped[User | None] = relationship("User")
 

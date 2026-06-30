@@ -12,6 +12,7 @@ from app.models.project import Project
 
 _LOAD = (
     selectinload(QaHighRiskBuilding.project).selectinload(Project.manager),
+    selectinload(QaHighRiskBuilding.building),
     selectinload(QaHighRiskBuilding.stage),
     selectinload(QaHighRiskBuilding.checked_by),
 )
@@ -24,12 +25,12 @@ async def get_by_id(session: AsyncSession, hrb_id: uuid.UUID) -> QaHighRiskBuild
     return result.scalar_one_or_none()
 
 
-async def get_by_project_stage(
-    session: AsyncSession, project_id: uuid.UUID, stage_id: uuid.UUID | None
+async def get_by_building_stage(
+    session: AsyncSession, building_id: uuid.UUID, stage_id: uuid.UUID | None
 ) -> QaHighRiskBuilding | None:
     stmt = (
         select(QaHighRiskBuilding)
-        .where(QaHighRiskBuilding.project_id == project_id)
+        .where(QaHighRiskBuilding.building_id == building_id)
         .options(*_LOAD)
     )
     if stage_id is None:

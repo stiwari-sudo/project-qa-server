@@ -14,6 +14,8 @@ class ResponseOut(OrmBase):
     project_id: uuid.UUID
     project_number: str
     project_name: str
+    building_id: uuid.UUID
+    building_name: str
     form_id: uuid.UUID
     form_name: str
     stage_id: uuid.UUID

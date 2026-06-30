@@ -37,8 +37,14 @@ class AzureJwksProvider(AuthProvider):
         return f"https://login.microsoftonline.com/{self._tenant}/discovery/v2.0/keys"
 
     @property
-    def _issuer(self) -> str:
-        return f"https://login.microsoftonline.com/{self._tenant}/v2.0"
+    def _issuers(self) -> tuple[str, ...]:
+        # Accept both v1.0 (sts.windows.net) and v2.0 issuers — the API app
+        # registration's accessTokenAcceptedVersion decides which the token uses.
+        # The TechandData app registration issues v1.0 tokens.
+        return (
+            f"https://sts.windows.net/{self._tenant}/",
+            f"https://login.microsoftonline.com/{self._tenant}/v2.0",
+        )
 
     async def _jwks(self) -> dict[str, Any]:
         if self._jwks_cache is None:
@@ -112,18 +118,23 @@ class AzureJwksProvider(AuthProvider):
             raise AuthenticationError("Signing key not found")
 
         try:
-            return cast(
+            claims = cast(
                 dict[str, Any],
                 jwt.decode(
                     token,
                     key,
                     algorithms=["RS256"],
                     audience=self._audience,
-                    issuer=self._issuer,
+                    options={"verify_iss": False},
                 ),
             )
         except JWTError as exc:
             raise AuthenticationError("Token verification failed") from exc
+
+        # Validate the issuer ourselves so we can accept either token version.
+        if claims.get("iss") not in self._issuers:
+            raise AuthenticationError("Invalid token issuer")
+        return claims
 
 
 def _bearer_token(request: Request) -> str:

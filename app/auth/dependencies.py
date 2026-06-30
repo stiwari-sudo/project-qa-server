@@ -34,6 +34,32 @@ async def get_current_user(
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
+# Ordered low→high authority. Used for display/sorting only — the visibility
+# rule below does NOT depend on the ordering. Roles are free strings on the
+# user (sourced from SharePoint/Azure later), so unknown roles are tolerated.
+ROLE_HIERARCHY: tuple[str, ...] = (
+    "engineer",
+    "associate",
+    "senior_associate",
+    "associate_director",
+    "manager",
+    "director",
+    "founding_director",
+    "admin",
+)
+
+
+def can_view_all_projects(user: User) -> bool:
+    """Whether the user sees every project (vs. only the ones assigned to them).
+
+    Rule: a user is "view-all" if they hold ANY role other than ``engineer``.
+    A pure engineer (``["engineer"]`` or no roles) is restricted to their own
+    assigned projects. Robust to future role strings — anything non-engineer
+    grants the all-projects view.
+    """
+    return any(role != "engineer" for role in user.roles)
+
+
 def require_roles(
     *roles: str,
 ) -> Callable[[User], Coroutine[Any, Any, User]]:

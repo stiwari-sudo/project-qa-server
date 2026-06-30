@@ -1,0 +1,109 @@
+﻿number,name,director,manager,cmap_stage,job_folder,status,detail
+1062,"Wells House, 134 - 140 Oxford Street",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\1062 - Wells House, 134 - 140 Oxford Street",not-found,no Building Control folder or pack file in 4 Calculations
+1114,"Minerva House, London, SE1",Mark Tillett,Krzysztof Marcinkiewicz,5 - Construction,"J:\1114 - Minerva House, London, SE1",not-found,no Building Control folder or pack file in 4 Calculations
+1564,"Axion House, Lewisham",Tom Steel,James Mumford,5 - Construction,"J:\1564 - Axion House, Lewisham",found-folder,folder='15.0 BUILDING CONTROL CALCULATION PACK'
+1569,"Holborn Viaduct, 14-21, EC1A 2AT",Tom Steel,James Mumford,5 - Construction,"J:\1569 - Holborn Viaduct, 14-21, EC1A 2AT",found-folder,folder='19. BUILDING CONTROL PACK'
+1812,"The Biscuit Factory, Tower Bridge",Susan Mantle,Susan Mantle,5 - Construction,"J:\1812 - The Biscuit Factory, Tower Bridge",not-found,no Building Control folder or pack file in 4 Calculations
+1849,"Grays Inn Road, 252, WC1X 8JT",Tom Steel,James Mumford,5 - Construction,,no-job-folder,no J: folder matched
+1947,"Marylebone Road, 242, NW1 6JQ",Andy Heyne,Jonathan Flint,5 - Construction,"J:\1947 - Marylebone Road, 240, NW1 6JQ",not-found,no Building Control folder or pack file in 4 Calculations
+1983,"Nuffield and Pegasus House, Piccadilly, 41-46, W1J 9EU",James Morgan,Andy Curry,5 - Construction,"J:\1983 - Nuffield and Pegasus House, Piccadilly,41-46, W1J 9EU",found-folder,folder='00 Building Control Pack'
+2095,"IBM, Upper Ground, 76-78, SE1 9PZ",Mark Tillett,Andrew Middlebrook,5 - Construction,"J:\2095 - IBM, Upper Ground, 76-78, SE1 9PZ",found-folder,folder='12.0 - Building Control Submission'
+2169,"Avon House, Allen Road, W8 6BL",Andy Heyne,Jonathan Flint,5 - Construction,"J:\2169 - Avon House, Allen Road, W8 6BL",not-found,no Building Control folder or pack file in 4 Calculations
+2194,Hamilton - 19 Great Eastern Street,Tom Steel,James Mumford,5 - Construction,"J:\2194 - Project Hamilton, 19 Great Eastern Street",not-found,no Building Control folder or pack file in 4 Calculations
+2200,"Lavington Street, 25, SE1 0NZ",Tom Watson,Sean Parkinson,5 - Construction,"J:\2200 - Lavington Street, 25, SE1",not-found,no Building Control folder or pack file in 4 Calculations
+2395,"Project Lemar, Berkeley St, 50, W1J 8HD",Tom Steel,Sean Parkinson,5 - Construction,"J:\2395 - Project Lemar, Berkeley St, 50, W1J 8HD",not-found,no Building Control folder or pack file in 4 Calculations
+2396,"Project Baguales, Argentina",Andy Heyne,Andy Heyne,5 - Construction,"J:\2396 - Project Baguales, Argentina",not-found,no Building Control folder or pack file in 4 Calculations
+2416,"Old Bailey Hub, Snow Hill, 5, EC1A 2DP",Tom Steel,James Mumford,5 - Construction,"J:\2416 - Old Bailey Hub, Snow Hill, 5, EC1A 2DP",found-folder,folder='Building Control Calculation Pack'
+2454,"Lancashire Court, London, W1",Tom Watson,Ella Warren,5 - Construction,"J:\2454 - Lancashire Court, London, W1",not-found,no Building Control folder or pack file in 4 Calculations
+2455,"Stratton Street, 50, W1J 8HD",Tom Steel,James Mumford,5 - Construction,"J:\2455 - Stratton Street, 50, W1J 8HD",not-found,no Building Control folder or pack file in 4 Calculations
+2458,Sicilian House & 21 Southampton Row (P1)                      ,Tom Steel,Dee Voaden,5 - Construction,J:\2458 - Sicilian House & 21 Southampton Row,not-found,no Building Control folder or pack file in 4 Calculations
+2459,"31 Southampton Row, WC1B 5HA (P7)",Tom Steel,James Mumford,5 - Construction,"J:\2459 - Southampton Row, 31, WC1B 5HA",found-file,file='2459 - Building Control Calculation Pack - 2604.pdf'
+2461,"20-22 Southampton Place, WC1A 2BP",Tom Steel,James Mumford,5 - Construction,"J:\2461 - 20-22 Southampton Place, WC1A 2BP",not-found,no Building Control folder or pack file in 4 Calculations
+2491,"Hasilwood House, 60 Bishopsgate, EC2N 4AW",Susan Mantle,Ben Thompson,5 - Construction,"J:\2491 - Hasilwood House, 60 Bishopsgate, EC2N 4AW",not-found,no Building Control folder or pack file in 4 Calculations
+2493,"Hanover Sq, 25, W1S 1JF",James Morgan,Ben Woodwiss,5 - Construction,"J:\2493 - Hanover Sq, 25, W1S 1JF",not-found,no Building Control folder or pack file in 4 Calculations
+2501,"The Mews, Ridgemead Road, TW20 0YD",Andy Heyne,Jonathan Flint,5 - Construction,"J:\2501 - Beech Hill House, Ridgemead Road, TW20 0YD",not-found,no Building Control folder or pack file in 4 Calculations
+2517,"Exchange Square, 1, EC2A 2JN",Andy Heyne,Jonathan Flint,5 - Construction,"J:\2517 - Exchange Square, 1, EC2A 2JN",not-found,no Building Control folder or pack file in 4 Calculations
+2534,"1 James Street, W1U 1DR",Tom Steel,David Wanley,5 - Construction,"J:\2534 - 1 James Street, W1U 1DR",not-found,no Building Control folder or pack file in 4 Calculations
+2554,"Norfolk House, WC1A 2AL (P3)",Tom Steel,Dee Voaden,5 - Construction,"J:\2554 - Norfolk House, Southampton Place, 13, WC1A 2AL",not-found,no Building Control folder or pack file in 4 Calculations
+2580,"Waterloo Hub Hotel, Kennington Road, SE1 7BJ ",Susan Mantle,Ben Thompson,5 - Construction,"J:\2580 - Waterloo Hub Hotel, Kennington Road, SE1 7BJ",found-folder,folder='4.0 Building Control'
+2582,"46 Avenue Road, London, NW8 6HS",Neil Cameron,Joshua Nunns,5 - Construction,"J:\2582 - 46 Avenue Road, London, NW8 6HS",not-found,no Building Control folder or pack file in 4 Calculations
+2583,"St John's Lane, 14, London, EC1M ",Tom Watson,Sean Parkinson,5 - Construction,"J:\2583 - St John's Lane, 14, London. EC1M",not-found,no Building Control folder or pack file in 4 Calculations
+2669,"Woolgate Exchange, EC2V 5HA",Mark Tillett,Andrew Middlebrook,5 - Construction,"J:\2669 - Woolgate Exchange, EC2V 5HA",found-folder,folder='_Building Control'
+2673,"Avenue Road, 52-54, NW8 6HP",Neil Cameron,George Carlin,5 - Construction,"J:\2673 - Avenue Road, 52-54, NW8 6HP",not-found,no Building Control folder or pack file in 4 Calculations
+2677,"Broadgate Tower, EC2M 3AB",Tom Steel,James Mumford,5 - Construction,"J:\2677 - Broadgate Tower, EC2M 3AB",found-folder,folder='0. Building Control'
+2690," Plot 800 Chesterford Research Park, Little Chesterford, CB10 1XL",James Morgan,Giorgio Cardone,5 - Construction,"J:\2690 - Sidney Sussex Building aka Plot 800 Chesterford Research park, Little Chesterford, CB10 1XL",found-folder,folder='00 Building Control Pack'
+2699,"Bloomsbury Street, 21, WC1B 3HF",James Morgan,Ben Woodwiss,5 - Construction,"J:\2699 - Bloomsbury St, 21, WC1B 3HF",not-found,no Building Control folder or pack file in 4 Calculations
+2715,"Brent Cross South, Plot 01",Mark Tillett,Krzysztof Marcinkiewicz,5 - Construction,"J:\2715 - Brent Cross South, Plot 01",not-found,no Building Control folder or pack file in 4 Calculations
+2725,"NW Works, Salusbury Road, 135, NW6 6RJ",Mark Tillett,Elliott Furminger,5 - Construction,,no-job-folder,no J: folder matched
+2750,"New Cavendish Street, 95, W1W 6XF",Elliott Furminger,Eamonn Keane,5 - Construction,"J:\2750 - New Cavendish Street, 95, W1W 6XF",not-found,no Building Control folder or pack file in 4 Calculations
+2800,"Gray's Inn Road, 200, WC1X 8HF",Mark Tillett,Eamonn Keane,5 - Construction,"J:\2800 - Gray's Inn Road, 200, WC1X 8HF",found-folder,folder='!BUILDING CONTROL PACK'
+2812,"Victoria House, Bloomsbury Square, WC1B 4DA",Tom Steel,David Wanley,5 - Construction,"J:\2812 - Victoria House, Bloomsbury Square, WC1B 4DA",not-found,no Building Control folder or pack file in 4 Calculations
+2817," Yewbarrow, Grange-over-Sands, LA11 6EB",David Miller,David Miller,5 - Construction,"J:\2817 - Yewbarrow, Grange-over-Sands, LA11 6EB",not-found,no Building Control folder or pack file in 4 Calculations
+2826,"Hush Willows, Wentworth Drive, Surrey, GU25 4NY",Neil Cameron,Joshua Nunns,5 - Construction,"J:\2826 - Hush Willows, Wentworth Drive, Surrey, GU25 4NY",not-found,no Building Control folder or pack file in 4 Calculations
+2846,"City Road, 186, EC1V 2NT",James Morgan,James Morgan,5 - Construction,"J:\2846 - City Rd, 186, EC1V 2NT",found-folder,folder='Building Control Pack'
+2855,"Shakespeare Hotel, Chapel Street, Stratford-upon-Avon, CV37 6ER",Neil Cameron,George Carlin,5 - Construction,"J:\2855 - Shakespeare Hotel, Chapel Street, Stratford-upon-Avon, CV37 6ER",not-found,no Building Control folder or pack file in 4 Calculations
+2856,"50 Ridgway Place, SW19 4SW",Neil Cameron,Joshua Nunns,5 - Construction,"J:\2856 - Ridgway Place, 50, SW19 4SW",not-found,no Building Control folder or pack file in 4 Calculations
+2868,"41 Lothbury, EC2R 7HG",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\2868 - Lothbury, 41, EC2R 7HG",not-found,no Building Control folder or pack file in 4 Calculations
+2873,"Grand Penthouse, Whistler Square, 8, Chelsea Barracks, SW1W 8DS",Neil Cameron,George Carlin,5 - Construction,"J:\2873 - Grand Penthouse, Whistler Square, 8, Chelsea Barracks, SW1W 8DS",not-found,no Building Control folder or pack file in 4 Calculations
+2884,"Brunner House, Channing School, N6 5HF",Susan Mantle,Ben Thompson,5 - Construction,"J:\2884 - Brunner House, Channing School, N6 5JR",found-file,"file='2884 - Brunner house, Channing school Superstructure Building Control Calculations Addendum.pdf'"
+2893,"Brent Cross South, Plot 01, CMT",Susan Mantle,Susan Mantle,5 - Construction,"J:\2893 - BXS Plot 01, CMT",not-found,no Building Control folder or pack file in 4 Calculations
+2896,"Building C, The Landing, King Street, 85, Maidenhead, SL6 1DU",James Morgan,Ben Woodwiss,5 - Construction,"J:\2896 - Building C, The Landing, King Street, 85, Maidenhead, SL6 1DU",not-found,no Building Control folder or pack file in 4 Calculations
+2904,"Gresse Street, 7-15, W1T 1QW",Mark Tillett,Krzysztof Marcinkiewicz,5 - Construction,"J:\2904 - Gresse Street, 7-15, W1T 1QW",found-file,file='2904-Gresse Street-Building Control Response Calcs.pdf'
+2912,"Oliver's Yard, City Rd, 55-71, London, EC1Y 1HQ",Tom Steel,Dee Voaden,5 - Construction,"J:\2912 - Oliver's Yard, City Rd, 55-71, London, EC1Y 1HQ",not-found,no Building Control folder or pack file in 4 Calculations
+2916,"St Magnus House, Lower Thames St, 3, EC3R 6HD",James Morgan,Ben Woodwiss,5 - Construction,"J:\2916 - St Magnus House, Lower Thames St, 3, EC3R 6HD",not-found,no Building Control folder or pack file in 4 Calculations
+2917,"Admiralty Arch, The Mall, SW1A 2WH",Neil Cameron,Rodrigo Burgos Valverde,5 - Construction,"J:\2917 - Admiralty Arch, The Mall, SW1A 2WH",found-folder,folder='16. Building control replies'
+2944,"Project Calgary, Holborn Viaduct ",Tom Steel,David Wanley,5 - Construction,"J:\2944 - Project Calgary, Holborn Viaduct, EC1A 2AT",not-found,no Building Control folder or pack file in 4 Calculations
+2948,"45 Charles Street, W1J 5EH",Tom Watson,Sean Parkinson,5 - Construction,"J:\2948 - Charles Street, 45, W1J 5EH",not-found,no Building Control folder or pack file in 4 Calculations
+2967,Project Barge,Tom Watson,Sean Parkinson,5 - Construction,"J:\2967 - Project Barge, Broadgate, 1, EC2M 2QS",not-found,no Building Control folder or pack file in 4 Calculations
+2972,"St Helens Town Centre, WA10 1AB",David Miller,David Miller,5 - Construction,"J:\2972 - St Helens Town Centre, WA10 1AB",not-found,no Building Control folder or pack file in 4 Calculations
+2983,"12 Elms Road, Clapham, SW4 9EX",Tom Watson,Sean Parkinson,5 - Construction,"J:\2983 - Elms Road, 12, Clapham, SW4 9EX",not-found,no Building Control folder or pack file in 4 Calculations
+2993,"Earlestown, Market Place, WA12 9AQ",David Miller,David Miller,5 - Construction,"J:\2993 - Earlestown Market Place, WA12 9AQ",not-found,no Building Control folder or pack file in 4 Calculations
+2994,"Earlestown Town Hall, WA12 9BN",David Miller,David Miller,5 - Construction,"J:\2994 - Earlestown Town Hall, WA12 9BN",not-found,no Building Control folder or pack file in 4 Calculations
+3024,"Victoria Street, 1, SW1H 0ET",Mark Tillett,Andrew Middlebrook,5 - Construction,"J:\3024 - Victoria Street, 1, SW1H 0ET",not-found,no Building Control folder or pack file in 4 Calculations
+3025,"Worship Square Level 6 to 8 Fit Out, Worship Street, EC2A 2AH",James Morgan,Andy Curry,5 - Construction,,no-job-folder,no J: folder matched
+3026,"The Little Boltons, 12, SW10 9LP",Neil Cameron,Joshua Nunns,5 - Construction,"J:\3026 - The Little Boltons, 12, SW10 9LP",not-found,no Building Control folder or pack file in 4 Calculations
+3039,"Greencoat and Gordon House, Francis Street SW1",Tom Steel,David Wanley,5 - Construction,"J:\3039 - Greencoat and Gordon House, Francis Street SW1",found-file,file='Building Control Pack.pdf'
+3072,"Grosvenor Street, 77 W1K 3JU",James Morgan,Giorgio Cardone,5 - Construction,"J:\3072 - Grosvenor Street, 77, W1K 3JU",not-found,no Building Control folder or pack file in 4 Calculations
+3074,"Union House, Union Street, SE1 0LH",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\3074 - Union House, Union Street, SE1 0LH",not-found,no Building Control folder or pack file in 4 Calculations
+3078,108 Pavilion Road,Tom Watson,Sean Parkinson,5 - Construction,"J:\3078 - Pavilion Road, 108 , SW1X 0AX",not-found,no Building Control folder or pack file in 4 Calculations
+3103,"Holland Villas Rd, 32, W14 8DH",Neil Cameron,Rodrigo Burgos Valverde,5 - Construction,"J:\3103 - Holland Villas Rd, 32, W14 8DH",not-found,no Building Control folder or pack file in 4 Calculations
+3106,"The Old Shippon, Ollerton, WA16 8SG",David Miller,David Miller,5 - Construction,"J:\3106 - The Old Shippon, Ollerton, WA16 8SG",found-folder,folder='Building Control'
+3111,"Millennium, Berkeley Street, 50, W1J 8HD",Neil Cameron,Joshua Nunns,5 - Construction,"J:\3111 - Millennium, Berkeley Street, 50, W!J 8HD",not-found,no Building Control folder or pack file in 4 Calculations
+3117,RMCH Alder Hey,David Miller,David Miller,5 - Construction,"J:\3117 - RMCH Alder Hey, Liverpool, L12 2AZ",not-found,no Building Control folder or pack file in 4 Calculations
+3133,"Phase 2, Dolphin Square, London SW1V 3NQ",Susan Mantle,Daniel Piper,5 - Construction,"J:\3133 - Phase 2, Dolphin Square, London, SW1V 3NQ",found-folder,folder='08 Building Control Package'
+3137,"New Zealand House, CMT, SW1Y 4TE",Andy Heyne,Andy Heyne,5 - Construction,"J:\3137 - New Zealand House, CMT, SW1Y 4TE",not-found,no Building Control folder or pack file in 4 Calculations
+3138,"Fountain Street, 35, Manchester M2 2AN",Andy Heyne,Andy Heyne,5 - Construction,"J:\3138 - Fountain Street, 35, Manchester M2 2AN",not-found,no Building Control folder or pack file in 4 Calculations
+3140,"Moelis & Co, Baker Street, 25, W1",Neil Cameron,George Carlin,5 - Construction,"J:\3140 - Moelis & Co, Baker Street, 25, W1",not-found,no Building Control folder or pack file in 4 Calculations
+3146,"Lancashire Court, 4-7, W1S 1EY",Tom Watson,Sean Parkinson,5 - Construction,"J:\3146 - Lancashire Court, 4-7, W1S 1EY",not-found,no Building Control folder or pack file in 4 Calculations
+3162,"Southwark OSD, Blackfriars Rd, 68-70, SE1 8JZ",Mark Tillett,Gordon Armstrong-Payne,5 - Construction,"J:\3162 - Southwark OSD, Blackfriars Rd, 68-70, SE1 8JZ",not-found,no Building Control folder or pack file in 4 Calculations
+3180,"Vicarage Gate House, Vicarage Gate, W8 4AQ",Elliott Furminger,Eamonn Keane,5 - Construction,"J:\3180 - Vicarage Gate House, Vicarage Gate, W8 4AQ",not-found,no Building Control folder or pack file in 4 Calculations
+3195,"London Wall, 60, Rabobank Fitout, EC2M 5TQ",Susan Mantle,Daniel Piper,5 - Construction,,no-job-folder,no J: folder matched
+3215,"IKEA Brighton, Churchill Square Shopping Centre, Russell Place, Brighton, BN1 2RG",James Morgan,Giorgio Cardone,5 - Construction,"J:\3215 - IKEA Brighton, Churchill Square Shopping Centre, Russell Place, Brighton, BN1 2RG",found-folder,folder='Stage 5 - Building Control Package'
+3227,"Mayfield School, Pedley Rd, RM8 1XS",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\3227 - Mayfield School, Pedley Rd, RM8 1XS",not-found,no Building Control folder or pack file in 4 Calculations
+3248,"Cursitor, Chancery Lane, 38, WC2A 1EN",Susan Mantle,Susan Mantle,5 - Construction,"J:\3248 - Cursitor, Chancery Lane, 38, WC2A 1EN",found-folder,folder='Building Control'
+3251,"Radstock House, SW1W 9LX",Tom Steel,James Mumford,5 - Construction,"J:\3251 - Radstock House, SW1W 9LX",not-found,no Building Control folder or pack file in 4 Calculations
+3252,"Project Black Swan, Victoria Street, 105, SW1E 6RA",Tom Steel,James Mumford,5 - Construction,"J:\3252 - Project Black Swan, Victoria Street, 105, SW1E 6RA",not-found,no Building Control folder or pack file in 4 Calculations
+3255,"Floral Street, 50 & Bow Street, 9-12, WC2E 9DA",Tom Watson,Chris Hallam,5 - Construction,"J:\3255 - Floral Street, 50 & Bow Street, 9-12, WC2E 9DA",not-found,no Building Control folder or pack file in 4 Calculations
+3257,"The Paddocks, Cherry Hinton Road, Cambridge CB1 8DH",Andy Heyne,Andy Heyne,5 - Construction,"J:\3257 - The Paddocks, Cherry Hinton Road, Cambridge CB1 8DH",not-found,no Building Control folder or pack file in 4 Calculations
+3270,"1-7 Livonia Street, W1F 8AD",Tom Steel,David Wanley,5 - Construction,"J:\3270 - Livonia Street, 1-7, W1F 8AD",not-found,no Building Control folder or pack file in 4 Calculations
+3284,"Curzon Street, 17A, W1J 5HS",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\3284 - Curzon Street, 17A, W1J 5HS",not-found,no Building Control folder or pack file in 4 Calculations
+3297,"Fish Island - 60 Dace Road, Bow, London, E3 2NN",Neil Cameron,Joshua Nunns,5 - Construction,"J:\3297 - Fish Island - 60 Dace Rd, Bow, London E3 2NN",not-found,no Building Control folder or pack file in 4 Calculations
+3302,"Wandle House, Mitcham",Susan Mantle,Daniel Piper,5 - Construction,"J:\3302 - Wandle House, Mitcham CR4 4BU",not-found,no Building Control folder or pack file in 4 Calculations
+3314,"Whittington House, 19-30 Alfred Place, WC1E 7EA",Mark Tillett,Krzysztof Marcinkiewicz,5 - Construction,"J:\3314 - Whittington House, 19-30 Alfred Place, WC1E 7EA",not-found,no Building Control folder or pack file in 4 Calculations
+3318,"Wychcombe Studios, England's Lane, 3, NW3 4XY",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\3318 - Wychcombe Studios, England's Lane, 3, NW3 4XY",found-folder,folder='!Building Control Pack'
+3319,Dolphin Square East and West Wings,Susan Mantle,Daniel Piper,5 - Construction,"J:\3319 - Dolphin Square East and West Wings, London, SW1V 3NQ",not-found,no Building Control folder or pack file in 4 Calculations
+3344,"Bloomsbury St, 21, WC1B 3HF, CAT B",James Morgan,Ben Woodwiss,5 - Construction,"J:\3344 - Bloomsbury Street, 21, WC1B 3HF - CAT B",not-found,no Building Control folder or pack file in 4 Calculations
+3353,"Salisbury Square, 10, EC47 8JD",Tom Steel,James Mumford,5 - Construction,"J:\3353 - Salisbury Square, 10, EC4Y 8JD",found-file,file='3353 - Building Control Calc Pack.docx'
+3362,"Wells Street, 19, W1T 3PQ",Mark Tillett,Gordon Armstrong-Payne,5 - Construction,,no-job-folder,no J: folder matched
+3365,"The Berkeley Hotel - Staff Welfare Project, Wilton Place, SW1X 7RL",James Morgan,James Morgan,5 - Construction,"J:\3365 - The Berkeley Hotel - Staff Welfare Project, Wilton Pl, SW1X 7RL",found-folder,folder='Building Control Submission'
+3390,"67-68 Grosvenor Street, W1K 3JN",Tom Steel,David Wanley,5 - Construction,"J:\3390 - Grosvenor Street, 67-68, W1K 3JN",not-found,no Building Control folder or pack file in 4 Calculations
+3407,"24 St James’s Square Staircase and Fit Out, SW1",James Morgan,Giorgio Cardone,5 - Construction,"J:\3407 - 24 St James’s Square Staircase and Fit Out, SW1",not-found,no Building Control folder or pack file in 4 Calculations
+3412,"Bank Street, 50, BUPA fit out, E14 5NY",Susan Mantle,Susan Mantle,5 - Construction,"J:\3412 - Bank Street, 50, BUPA fit out, E14 5NY",not-found,no Building Control folder or pack file in 4 Calculations
+3420,"Chiltern Firehouse, W1U 7PA",Elliott Furminger,Elliott Furminger,5 - Construction,"J:\3420 - Chiltern Firehouse, W1U 7PA",not-found,no Building Control folder or pack file in 4 Calculations
+3426,"Eastcastle Street, 50, W1W 8EB",James Morgan,James Morgan,5 - Construction,"J:\3426 - Eastcastle Street, 50, W1W 8EB",not-found,no Building Control folder or pack file in 4 Calculations
+3427,"Grafton Street, 23, W1S 4EY",Elliott Furminger,Eamonn Keane,5 - Construction,"J:\3427 - Grafton Street, 23, W1S 4EY",found-file,file='3427 - 23 Grafton Street - Building Control Calculation Package.docx'
+3439,"Marylebone Place, NW1 5QD - UBP Fitout",Andy Heyne,Jonathan Flint,5 - Construction,"J:\3439 - Marylebone Place, NW1 5QD - UBP Fitout",not-found,no Building Control folder or pack file in 4 Calculations
+3453,"Grove Park, 123, Camberwell, SE5 8LD",Neil Cameron,George Carlin,5 - Construction,"J:\3453 - Grove Park, 123, Camberwell, SE5 8LD",not-found,no Building Control folder or pack file in 4 Calculations
+3460,"Jermyn Street D&B, 103-105, SW1Y 6EE",Neil Cameron,Rodrigo Burgos Valverde,5 - Construction,"J:\3460 - Jermyn Street D&B, 103-105, SW1Y 6EE",not-found,no Building Control folder or pack file in 4 Calculations
+3510,"Unit 6&7, Mayfair Business Park, Bradford, BD4 8PW",David Miller,David Miller,5 - Construction,"J:\3510 - Unit 6&7, Mayfair Business Park, Bradford, BD4 8PW",not-found,no Building Control folder or pack file in 4 Calculations
+3555,"Avenue Road, 52-54, NW8 6HP",Neil Cameron,George Carlin,5 - Construction,"J:\3555 - Avenue Road, 52-54, NW8 6HP",not-found,no Building Control folder or pack file in 4 Calculations

@@ -10,8 +10,14 @@ from app.schemas.project import ProjectOut
 from app.services.mappers import project_to_out
 
 
-async def list_projects(session: AsyncSession) -> list[ProjectOut]:
+async def list_projects(
+    session: AsyncSession,
+    *,
+    visible_project_ids: set[uuid.UUID] | None = None,
+) -> list[ProjectOut]:
     rows = await projects_repo.list_active(session)
+    if visible_project_ids is not None:
+        rows = [p for p in rows if p.id in visible_project_ids]
     return [project_to_out(p) for p in rows]
 
 
