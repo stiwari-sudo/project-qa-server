@@ -17,14 +17,15 @@ from app.repositories import users as users_repo
 
 logger = get_logger(__name__)
 
-_ROLE_CLAIMS = ("roles", "groups")
-
 
 class AzureJwksProvider(AuthProvider):
     """Verifies an Azure AD bearer JWT (RS256) against the tenant JWKS.
 
-    Phase 4 slot. Same contract as the dev stub: it maps ``oid/upn/name/roles``
-    claims and JIT-provisions a User. Selected when ``AUTH_PROVIDER=azure``.
+    MSAL is used for LOGIN ONLY: the token establishes identity
+    (``oid``/``upn``/``name``) and nothing more. **Roles and project
+    assignments are owned by the CMAP sync**, not the token — so this provider
+    never reads a ``roles``/``groups`` claim and never writes ``user.roles``.
+    Selected when ``AUTH_PROVIDER=azure``.
     """
 
     def __init__(self) -> None:
@@ -72,7 +73,6 @@ class AzureJwksProvider(AuthProvider):
             raise AuthenticationError("Token has no email/upn claim")
 
         name = str(claims.get("name") or "") or display_name_from_email(email)
-        roles = _extract_roles(claims)
 
         user: User | None = None
         if azure_oid:
@@ -81,18 +81,21 @@ class AzureJwksProvider(AuthProvider):
             user = await users_repo.get_by_email(session, email)
 
         if user is None:
+            # First sign-in with no CMAP-synced record yet: provision identity
+            # only, role-less. Fail closed — no roles means own-only with no
+            # assigned projects, so nothing is visible until the CMAP sync
+            # grants roles + assignments (matched by email).
             user = await users_repo.create(
                 session,
                 email=email,
                 display_name=name,
-                roles=roles,
+                roles=[],
                 azure_oid=azure_oid,
             )
         else:
-            # Keep the local mirror fresh on each sign-in.
+            # Refresh identity fields only. Roles are owned by the CMAP sync and
+            # must never be overwritten from the token.
             user.display_name = name
-            if roles:
-                user.roles = roles
             if azure_oid and not user.azure_oid:
                 user.azure_oid = azure_oid
 
@@ -143,13 +146,3 @@ def _bearer_token(request: Request) -> str:
     if scheme.lower() != "bearer" or not token:
         raise AuthenticationError("Missing bearer token")
     return token.strip()
-
-
-def _extract_roles(claims: dict[str, Any]) -> list[str]:
-    for claim in _ROLE_CLAIMS:
-        value = claims.get(claim)
-        if isinstance(value, list):
-            return [str(v) for v in value]
-        if isinstance(value, str) and value:
-            return [value]
-    return []
