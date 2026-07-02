@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     # building scaffolds its QA + calc folders. See app/services/qa_folders.py.
     qa_share_root: str = Field(default="")
 
+    # Demo/sample seed data (fake users + projects 24001-24008), applied by
+    # seeds.run only when true. Keep OFF against any database holding real QA
+    # data; refused outright when APP_ENV is production.
+    seed_sample_data: bool = Field(default=False)
+
     # Deadline reminder offsets (days before deadline), comma-separated.
     reminder_offsets: str = Field(default="14,7,3,1")
 

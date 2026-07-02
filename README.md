@@ -65,7 +65,7 @@ The dev stub signs you in as the seeded engineer (`engineer@hts.uk.com`); set
 # in this repo (project-qa-server)
 python -m venv .venv && ./.venv/Scripts/python.exe -m pip install -e ".[dev]"
 cp .env.example .env          # API-only env (point DATABASE_URL at a local Postgres)
-alembic upgrade head && python -m seeds.run
+alembic upgrade head && python -m seeds.run   # SEED_SAMPLE_DATA=true in .env for demo data
 uvicorn app.main:app --reload
 ```
 
