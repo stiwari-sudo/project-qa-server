@@ -10,6 +10,7 @@ from app.auth import CurrentUser
 from app.core.db import get_session
 from app.schemas.hrb import HrbCreate, HrbOut, HrbUpdate
 from app.services import hrb as hrb_service
+from app.services import project_members as members_service
 
 router = APIRouter(prefix="/hrb", tags=["hrb"])
 
@@ -17,13 +18,22 @@ router = APIRouter(prefix="/hrb", tags=["hrb"])
 @router.get("", response_model=list[HrbOut])
 async def list_hrb(
     session: Annotated[AsyncSession, Depends(get_session)],
-    _: CurrentUser,
+    user: CurrentUser,
     project: uuid.UUID | None = None,
     stage: uuid.UUID | None = None,
     is_high_risk: bool | None = None,
 ) -> list[HrbOut]:
+    # Mirrors stats.py: explicit ?project= is asserted; the unscoped register
+    # is filtered to the user's visible projects (None = view-all).
+    if project is not None:
+        await members_service.assert_can_view_project(session, user, project)
+    visible = await members_service.visible_project_ids(session, user)
     return await hrb_service.list_hrb(
-        session, project_id=project, stage_id=stage, is_high_risk=is_high_risk
+        session,
+        project_id=project,
+        stage_id=stage,
+        is_high_risk=is_high_risk,
+        visible_project_ids=visible,
     )
 
 
@@ -50,7 +60,7 @@ async def update_hrb(
 async def delete_hrb(
     hrb_id: uuid.UUID,
     session: Annotated[AsyncSession, Depends(get_session)],
-    _: CurrentUser,
+    user: CurrentUser,
 ) -> Response:
-    await hrb_service.delete_hrb(session, hrb_id)
+    await hrb_service.delete_hrb(session, hrb_id, user)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

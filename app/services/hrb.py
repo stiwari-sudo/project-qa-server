@@ -11,6 +11,7 @@ from app.repositories import hrb as hrb_repo
 from app.repositories import responses as responses_repo
 from app.schemas.hrb import HrbCreate, HrbOut, HrbUpdate
 from app.services import buildings as buildings_service
+from app.services import project_members as members_service
 from app.services.mappers import hrb_to_out
 
 
@@ -20,12 +21,14 @@ async def list_hrb(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     is_high_risk: bool | None = None,
+    visible_project_ids: set[uuid.UUID] | None = None,
 ) -> list[HrbOut]:
     rows = await hrb_repo.list_filtered(
         session,
         project_id=project_id,
         stage_id=stage_id,
         is_high_risk=is_high_risk,
+        visible_project_ids=visible_project_ids,
     )
     # Group each project's stages together in QA lifecycle order.
     rows = sorted(
@@ -60,6 +63,7 @@ async def upsert_hrb(
 ) -> HrbOut:
     """Manual create/update honouring the (building, stage) uniqueness. The
     building defaults to the project's primary one when the caller omits it."""
+    await members_service.assert_can_view_project(session, user, payload.project_id)
     building = await buildings_service.resolve_building(
         session, payload.project_id, payload.building_id
     )
@@ -96,6 +100,7 @@ async def update_hrb(
     row = await hrb_repo.get_by_id(session, hrb_id)
     if row is None:
         raise NotFoundError("HRB record not found")
+    await members_service.assert_can_view_project(session, user, row.project_id)
 
     for key, value in payload.model_dump(exclude_unset=True).items():
         setattr(row, key, value)
@@ -107,8 +112,9 @@ async def update_hrb(
     return hrb_to_out(reloaded)
 
 
-async def delete_hrb(session: AsyncSession, hrb_id: uuid.UUID) -> None:
+async def delete_hrb(session: AsyncSession, hrb_id: uuid.UUID, user: User) -> None:
     row = await hrb_repo.get_by_id(session, hrb_id)
     if row is None:
         raise NotFoundError("HRB record not found")
+    await members_service.assert_can_view_project(session, user, row.project_id)
     await hrb_repo.delete(session, row)

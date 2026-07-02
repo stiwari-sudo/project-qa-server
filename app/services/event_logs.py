@@ -19,6 +19,7 @@ from app.schemas.event_log import (
     EventLogOut,
     EventLogUpdate,
 )
+from app.services import project_members as members_service
 from app.services.mappers import event_log_to_out
 
 
@@ -28,9 +29,14 @@ async def list_event_logs(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     discipline: Discipline | None = None,
+    visible_project_ids: set[uuid.UUID] | None = None,
 ) -> list[EventLogOut]:
     rows = await event_logs_repo.list_filtered(
-        session, project_id=project_id, stage_id=stage_id, discipline=discipline
+        session,
+        project_id=project_id,
+        stage_id=stage_id,
+        discipline=discipline,
+        visible_project_ids=visible_project_ids,
     )
     return [event_log_to_out(r) for r in rows]
 
@@ -41,6 +47,7 @@ async def create_event_log(
     project = await projects_repo.get_by_id(session, payload.project_id)
     if project is None:
         raise NotFoundError("Project not found")
+    await members_service.assert_can_view_project(session, user, payload.project_id)
 
     event = QaEventLog(
         project_id=payload.project_id,
@@ -57,11 +64,12 @@ async def create_event_log(
 
 
 async def update_event_log(
-    session: AsyncSession, event_id: uuid.UUID, payload: EventLogUpdate
+    session: AsyncSession, event_id: uuid.UUID, payload: EventLogUpdate, user: User
 ) -> EventLogOut:
     event = await event_logs_repo.get_by_id(session, event_id)
     if event is None:
         raise NotFoundError("Event log not found")
+    await members_service.assert_can_view_project(session, user, event.project_id)
 
     for key, value in payload.model_dump(exclude_unset=True).items():
         setattr(event, key, value)
@@ -72,10 +80,13 @@ async def update_event_log(
     return event_log_to_out(reloaded)
 
 
-async def delete_event_log(session: AsyncSession, event_id: uuid.UUID) -> None:
+async def delete_event_log(
+    session: AsyncSession, event_id: uuid.UUID, user: User
+) -> None:
     event = await event_logs_repo.get_by_id(session, event_id)
     if event is None:
         raise NotFoundError("Event log not found")
+    await members_service.assert_can_view_project(session, user, event.project_id)
     await event_logs_repo.delete(session, event)
 
 
@@ -92,9 +103,14 @@ async def analyse_event_logs(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     discipline: Discipline | None = None,
+    visible_project_ids: set[uuid.UUID] | None = None,
 ) -> EventLogAnalysis:
     rows = await event_logs_repo.list_filtered(
-        session, project_id=project_id, stage_id=stage_id, discipline=discipline
+        session,
+        project_id=project_id,
+        stage_id=stage_id,
+        discipline=discipline,
+        visible_project_ids=visible_project_ids,
     )
     by_discipline: Counter[str] = Counter()
     by_category: Counter[str] = Counter()
@@ -131,9 +147,14 @@ async def export_event_logs_csv(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     discipline: Discipline | None = None,
+    visible_project_ids: set[uuid.UUID] | None = None,
 ) -> str:
     rows = await event_logs_repo.list_filtered(
-        session, project_id=project_id, stage_id=stage_id, discipline=discipline
+        session,
+        project_id=project_id,
+        stage_id=stage_id,
+        discipline=discipline,
+        visible_project_ids=visible_project_ids,
     )
     buffer = io.StringIO()
     writer = csv.DictWriter(buffer, fieldnames=_EXPORT_COLUMNS, extrasaction="ignore")

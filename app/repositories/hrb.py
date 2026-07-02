@@ -47,12 +47,16 @@ async def list_filtered(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     is_high_risk: bool | None = None,
+    visible_project_ids: set[uuid.UUID] | None = None,
 ) -> Sequence[QaHighRiskBuilding]:
     stmt = (
         select(QaHighRiskBuilding)
         .options(*_LOAD)
         .order_by(QaHighRiskBuilding.created_at.desc())
     )
+    # None = no restriction (view-all); an empty set correctly yields no rows.
+    if visible_project_ids is not None:
+        stmt = stmt.where(QaHighRiskBuilding.project_id.in_(visible_project_ids))
     if project_id is not None:
         stmt = stmt.where(QaHighRiskBuilding.project_id == project_id)
     if stage_id is not None:

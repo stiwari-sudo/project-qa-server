@@ -64,6 +64,18 @@ def can_view_all_projects(user: User) -> bool:
     return any(role != "engineer" for role in user.roles)
 
 
+async def require_view_all(user: CurrentUser) -> User:
+    """Dependency: firm-wide roll-up surfaces (the director overview) are for
+    view-all roles only — own-only engineers get 403. Mirrors the web
+    RouteGuard's VIEW_ALL_PREFIXES policy on the server."""
+    if not can_view_all_projects(user):
+        raise PermissionDeniedError("Requires all-projects visibility")
+    return user
+
+
+RequireViewAll = Annotated[User, Depends(require_view_all)]
+
+
 def require_roles(
     *roles: str,
 ) -> Callable[[User], Coroutine[Any, Any, User]]:

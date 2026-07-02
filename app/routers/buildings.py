@@ -10,6 +10,7 @@ from app.auth import CurrentUser
 from app.core.db import get_session
 from app.schemas.building import BuildingCreate, BuildingOut
 from app.services import buildings as buildings_service
+from app.services import project_members as members_service
 
 router = APIRouter(prefix="/projects", tags=["buildings"])
 
@@ -18,8 +19,9 @@ router = APIRouter(prefix="/projects", tags=["buildings"])
 async def list_project_buildings(
     project_id: uuid.UUID,
     session: Annotated[AsyncSession, Depends(get_session)],
-    _: CurrentUser,
+    user: CurrentUser,
 ) -> list[BuildingOut]:
+    await members_service.assert_can_view_project(session, user, project_id)
     return await buildings_service.list_buildings(session, project_id)
 
 
@@ -33,8 +35,11 @@ async def create_project_building(
     payload: BuildingCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
     background_tasks: BackgroundTasks,
-    _: CurrentUser,
+    user: CurrentUser,
 ) -> BuildingOut:
+    # Asserted before the service runs, so the J:-share folder scaffolding
+    # side effect can never be enqueued for a project the user can't access.
+    await members_service.assert_can_view_project(session, user, project_id)
     return await buildings_service.create_building(
         session, project_id, payload, background_tasks
     )
