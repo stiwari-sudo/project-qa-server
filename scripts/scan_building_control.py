@@ -24,8 +24,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import csv
-import os
-import re
 import sys
 from pathlib import Path
 
@@ -34,10 +32,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.core.db import SessionLocal  # noqa: E402
 from app.repositories import projects as projects_repo  # noqa: E402
 
-CALC_FOLDER = "4 Calculations"
-BC_ANCHOR = "building control"
-BC_FILE_QUALIFIERS = ("pack", "calc", "submission")
-FILE_WALK_DEPTH = 3
+# Share the matcher with the in-app scanner so detection can never drift.
+from app.services.building_control_scan import (  # noqa: E402
+    match_job_folders,
+    scan_job,
+)
 
 
 def list_top_folders(root: Path) -> list[Path]:
@@ -46,54 +45,6 @@ def list_top_folders(root: Path) -> list[Path]:
     except OSError as exc:  # pragma: no cover - environment dependent
         print(f"Cannot list {root}: {exc}", file=sys.stderr)
         return []
-
-
-def match_job_folders(top_folders: list[Path], number: str) -> list[Path]:
-    pattern = re.compile(rf"{re.escape(number)}(?=\D|$)")
-    return [p for p in top_folders if pattern.match(p.name)]
-
-
-def _folder_hit(calc: Path) -> str | None:
-    """An immediate subfolder of 4 Calculations named like a Building Control pack."""
-    try:
-        for sub in calc.iterdir():
-            if sub.is_dir() and BC_ANCHOR in sub.name.lower():
-                return sub.name
-    except OSError:
-        return None
-    return None
-
-
-def _file_hit(calc: Path) -> str | None:
-    """A file (bounded recursive) named with 'building control' + a pack/calc qualifier."""
-    base = len(calc.parts)
-    for dirpath, dirnames, filenames in os.walk(calc):
-        if len(Path(dirpath).parts) - base >= FILE_WALK_DEPTH:
-            dirnames[:] = []
-            continue
-        for fname in filenames:
-            low = fname.lower()
-            if BC_ANCHOR in low and any(q in low for q in BC_FILE_QUALIFIERS):
-                return fname
-    return None
-
-
-def scan_job(job_folder: Path) -> tuple[str, str]:
-    """(status, detail) for a job. Folder check first (cheap); file walk only if needed."""
-    calc = job_folder / CALC_FOLDER
-    try:
-        if not calc.is_dir():
-            return "no-4-calculations", f"no '{CALC_FOLDER}' folder"
-    except OSError as exc:
-        return "error", str(exc)
-
-    folder = _folder_hit(calc)
-    if folder:
-        return "found-folder", f"folder='{folder}'"
-    file = _file_hit(calc)
-    if file:
-        return "found-file", f"file='{file}'"
-    return "not-found", "no Building Control folder or pack file in 4 Calculations"
 
 
 async def load_cmap5_jobs() -> list:

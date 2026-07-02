@@ -7,9 +7,10 @@ from pydantic import BaseModel, Field
 
 
 class BuildingControlOut(BaseModel):
-    """A construction job's Building Control pack status — the best-effort J:
-    scan hint plus any director confirm/override, reduced to one
-    ``effective_status``."""
+    """A construction job's calc-package status. The verdict (``form_status`` /
+    ``present``) is the canonical ``q_*_sd_5`` form answer that the director KPI
+    reads; the ``scan_*`` fields are the advisory best-effort J: hint, and
+    ``agreement`` says how the two compare."""
 
     project_id: uuid.UUID
     project_number: str
@@ -17,32 +18,32 @@ class BuildingControlOut(BaseModel):
     director_name: str | None = None
     manager_name: str | None = None
 
-    # Best-effort J: scan hint.
-    scan_detected: bool
-    # found-folder | found-file | not-found | no-4-calculations | error
+    # Canonical verdict — the structural calc-package form answer.
+    form_status: str  # "yes" | "no" | "blank"
+    present: bool  # form_status == "yes"
+
+    # Best-effort J: scan hint (advisory only).
+    scanned: bool  # a scan row exists for this job
+    scan_detected: bool  # the scan found a calc/Building-Control pack
     scan_status: str | None = None
-    scan_detail: str | None = None
     scan_path: str | None = None
     scanned_at: datetime | None = None
 
-    # Director confirm/override and the resulting effective status.
-    manual_status: str | None = None  # "found" | "not_found" | None (defer to scan)
-    effective_status: str  # "found" | "not_found" | "unknown"
-    confirmed_by_name: str | None = None
-    notes: str | None = None
-    updated_at: datetime
+    # How the scan compares to the form verdict.
+    agreement: str  # "match" | "scan_only" | "form_only" | "no_scan"
 
 
 class BuildingControlSummary(BaseModel):
-    """At-a-glance counts across the scanned construction jobs."""
+    """Roll-up across construction jobs: the form verdict spread plus how well the
+    J: scan agrees with it."""
 
     total: int
-    found: int
-    not_found: int
-    unknown: int
-    # How many verdicts are a director's confirm/override (vs. scan-only hint).
-    confirmed: int
-    found_pct: float
+    present: int  # form says complete
+    absent: int  # form explicitly "No"
+    blank: int  # not yet answered
+    scanned: int  # have a J: scan row
+    detected: int  # scan found a pack
+    mismatch: int  # scan disagrees with the form verdict
 
 
 class BuildingControlList(BaseModel):
@@ -51,8 +52,7 @@ class BuildingControlList(BaseModel):
 
 
 class BuildingControlUpdate(BaseModel):
-    """Director confirm/override. ``manual_status=None`` clears the override and
-    defers to the scan hint again."""
+    """Director confirm/override — writes the canonical calc-package form answer
+    (``True`` → "Yes", ``False`` → "No")."""
 
-    manual_status: str | None = None  # "found" | "not_found" | None
-    notes: str | None = Field(default=None, max_length=2000)
+    present: bool

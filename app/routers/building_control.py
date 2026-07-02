@@ -30,7 +30,7 @@ async def list_building_control(
     _: Annotated[User, Depends(_REQUIRE_DIRECTOR)],
     director: uuid.UUID | None = None,
     project: uuid.UUID | None = None,
-    status: str | None = None,  # "found" | "not_found" | "unknown" — filters items only
+    status: str | None = None,  # "yes" | "no" | "blank" — filters items only
 ) -> BuildingControlList:
     return await bc_service.list_status(
         session, director_id=director, project_id=project, status=status
@@ -44,4 +44,5 @@ async def set_building_control(
     session: Annotated[AsyncSession, Depends(get_session)],
     user: Annotated[User, Depends(_REQUIRE_DIRECTOR)],
 ) -> BuildingControlOut:
-    return await bc_service.set_manual(session, project_id, payload, user)
+    # Writes the canonical calc-package form answer (reflected in the QA form + KPI).
+    return await bc_service.set_calc_pack(session, project_id, payload, user)

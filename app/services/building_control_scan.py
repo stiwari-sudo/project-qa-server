@@ -1,11 +1,11 @@
-"""Scan J: for each construction (CMAP-5) job's Building Control pack and write
-the best-effort result into the qa_building_control index.
+"""Scan J: for each construction (CMAP-5) job's structural calc / Building Control
+pack and write the best-effort result into the qa_building_control index.
 
 READ-ONLY on J:. The folder/file naming is wildly inconsistent across jobs, so
 this is a *hint* — "found" = inside <job>\\4 Calculations there is either a
-subfolder whose name contains "building control", or a file (bounded recursive)
-named with "building control" + a pack/calc/submission qualifier. A director
-confirms/overrides per job; the scan never auto-flips a manual decision.
+subfolder whose name contains "calc pack" / "calculation pack" / "building
+control", or a file (bounded recursive) named likewise. The canonical verdict is
+the director/engineer's form answer; the scan only suggests and flags mismatches.
 
 Designed to run in-process (CLI now, scheduled on the J:-connected VM later).
 On the VM use the UNC path, not a mapped drive letter.
@@ -25,9 +25,26 @@ from app.repositories import building_control as bc_repo
 from app.repositories import projects as projects_repo
 
 CALC_FOLDER = "4 Calculations"
-BC_ANCHOR = "building control"
+# A subfolder/file name signals the structural calc package if it names a calc
+# pack or a Building Control pack — the same artifact, named inconsistently
+# across jobs ("99 Calc Pack", "Calculation packs", "Building Control Pack", …).
+FOLDER_ANCHORS = ("building control", "calc pack", "calculation pack")
+# Bare "building control" files need a pack/calc/submission qualifier to avoid
+# matching stray emails; "calc pack"/"calculation pack" are specific on their own.
 BC_FILE_QUALIFIERS = ("pack", "calc", "submission")
 FILE_WALK_DEPTH = 3
+
+
+def _name_is_pack_folder(name: str) -> bool:
+    low = name.lower()
+    return any(anchor in low for anchor in FOLDER_ANCHORS)
+
+
+def _name_is_pack_file(name: str) -> bool:
+    low = name.lower()
+    if "calc pack" in low or "calculation pack" in low:
+        return True
+    return "building control" in low and any(q in low for q in BC_FILE_QUALIFIERS)
 
 
 def is_cmap5(project: Any) -> bool:
@@ -43,7 +60,7 @@ def match_job_folders(top_folders: list[Path], number: str) -> list[Path]:
 def _folder_hit(calc: Path) -> str | None:
     try:
         for sub in calc.iterdir():
-            if sub.is_dir() and BC_ANCHOR in sub.name.lower():
+            if sub.is_dir() and _name_is_pack_folder(sub.name):
                 return sub.name
     except OSError:
         return None
@@ -57,8 +74,7 @@ def _file_hit(calc: Path) -> str | None:
             dirnames[:] = []
             continue
         for fname in filenames:
-            low = fname.lower()
-            if BC_ANCHOR in low and any(q in low for q in BC_FILE_QUALIFIERS):
+            if _name_is_pack_file(fname):
                 return fname
     return None
 
@@ -109,13 +125,19 @@ async def run_scan(session: AsyncSession, root: str | Path) -> dict[str, int]:
         assert best is not None
         status, detail, jf = best
 
+        # The pack lives inside the job's "4 Calculations" folder, so point the
+        # UI's path there (that's where a director looks). Fall back to the job
+        # folder only when there's no calculations folder to point at.
+        calc = jf / CALC_FOLDER
+        scan_path = str(jf) if status in ("no-4-calculations", "error") else str(calc)
+
         await bc_repo.upsert_scan(
             session,
             project_id=p.id,
             scan_detected=status.startswith("found"),
             scan_status=status,
             scan_detail=detail,
-            scan_path=str(jf),
+            scan_path=scan_path,
             scanned_at=now,
         )
         counts[status] = counts.get(status, 0) + 1

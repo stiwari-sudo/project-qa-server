@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import CurrentUser
@@ -32,6 +32,9 @@ async def create_project_building(
     project_id: uuid.UUID,
     payload: BuildingCreate,
     session: Annotated[AsyncSession, Depends(get_session)],
+    background_tasks: BackgroundTasks,
     _: CurrentUser,
 ) -> BuildingOut:
-    return await buildings_service.create_building(session, project_id, payload)
+    return await buildings_service.create_building(
+        session, project_id, payload, background_tasks
+    )

@@ -93,6 +93,46 @@ async def bulk_save(
     return response_to_out(reloaded)
 
 
+async def set_answer(
+    session: AsyncSession,
+    *,
+    project_id: uuid.UUID,
+    stage_id: uuid.UUID,
+    question_id: str,
+    value: Any,
+    user: User,
+    building_id: uuid.UUID | None = None,
+) -> ResponseOut:
+    """Set a single form answer and recompute completion — without the deadline
+    reset or HRB sync that ``bulk_save`` performs. For programmatic single-field
+    writes (e.g. a director confirming the calc pack from the overview) where
+    nothing else on the form, and crucially not the HRB determination, changes."""
+    building = await buildings_service.resolve_building(session, project_id, building_id)
+    pr = await responses_repo.get_for_building_stage(session, building.id, stage_id)
+    if pr is None:
+        pr = await _create_empty(session, building, stage_id)
+
+    merged = dict(pr.responses or {})
+    merged[question_id] = {
+        "value": value,
+        "responded_by_id": str(user.id),
+        "responded_by_name": user.display_name,
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+    pr.responses = merged
+    pr.last_updated_by_id = user.id
+
+    result = calculate_completion(pr.form.structure, merged)
+    pr.completion_percentage = result.completion_percentage
+    pr.total_questions = result.total_questions
+    pr.answered_questions = result.answered_questions
+    await session.flush()
+
+    reloaded = await responses_repo.get_for_building_stage(session, building.id, stage_id)
+    assert reloaded is not None
+    return response_to_out(reloaded)
+
+
 async def _create_empty(
     session: AsyncSession, building: Building, stage_id: uuid.UUID
 ) -> QaProjectResponse:

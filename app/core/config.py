@@ -51,6 +51,17 @@ class Settings(BaseSettings):
     calc_pack_question_ids: str = Field(
         default="q_detailed_sd_5,q_pretender_sd_5,q_precon_sd_5"
     )
+    # The single calc-pack question a director's Building Control "confirm" writes
+    # to (the canonical value the form + overview both read). Aligns with the
+    # construction stage — precon for datasets with no Site-stage QA.
+    calc_pack_primary_question_id: str = Field(default="q_precon_sd_5")
+
+    # QA file share root for building folder scaffolding. Empty = disabled (local
+    # dev): adding a building won't touch the share. On the J:-connected VM set
+    # this to the UNC root (e.g. \\server\share) — NOT a mapped drive letter,
+    # which is per-user and invisible to the service account — so adding an extra
+    # building scaffolds its QA + calc folders. See app/services/qa_folders.py.
+    qa_share_root: str = Field(default="")
 
     # Deadline reminder offsets (days before deadline), comma-separated.
     reminder_offsets: str = Field(default="14,7,3,1")

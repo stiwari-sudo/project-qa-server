@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
@@ -9,6 +10,7 @@ from app.models.building import Building
 from app.repositories import buildings as buildings_repo
 from app.repositories import projects as projects_repo
 from app.schemas.building import BuildingCreate, BuildingOut
+from app.services import qa_folders
 
 
 async def get_primary_building(
@@ -53,7 +55,10 @@ async def list_buildings(
 
 
 async def create_building(
-    session: AsyncSession, project_id: uuid.UUID, payload: BuildingCreate
+    session: AsyncSession,
+    project_id: uuid.UUID,
+    payload: BuildingCreate,
+    background_tasks: BackgroundTasks | None = None,
 ) -> BuildingOut:
     project = await projects_repo.get_by_id(session, project_id)
     if project is None:
@@ -69,4 +74,14 @@ async def create_building(
         project_id=project_id, name=payload.name.strip(), order=order
     )
     created = await buildings_repo.add(session, building)
+
+    # Scaffold this building's folders on the QA share — but only for buildings
+    # added *beyond* the project's first (the primary/Main building keeps the
+    # flat "10 QA" layout). Best-effort and off the request path; a no-op when no
+    # share is configured (local dev).
+    if background_tasks is not None and len(existing) >= 1:
+        qa_folders.enqueue_building_folders(
+            background_tasks, project.number, created.name
+        )
+
     return BuildingOut.model_validate(created)

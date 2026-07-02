@@ -24,10 +24,7 @@ from app.schemas.overview import (
     StageCount,
 )
 from app.services import building_control as bc_service
-
-# Default stage order treated as "construction" by the site proxy (Site=5).
-# Overridable via settings.construction_stage_order.
-SITE_STAGE_ORDER = 5
+from app.services import construction
 
 # Stage-distribution buckets for projects with no qualifying activity.
 NO_QA_STARTED = "No QA Started"
@@ -69,7 +66,7 @@ def _has_yes_answer(responses_json: Mapping[str, Any]) -> bool:
     """Legacy "Basic QA Check" rule: a project has responded once any answer is
     a "Yes" variant ("Yes", "Yes w/ Evidence", "Yes w/o Evidence", …). Mirrors
     the legacy ``action_id in {1, 2}`` check; No / N/A / blank / placeholder
-    dashes ("----------") do not count. Same convention as ``_calc_pack_complete``."""
+    dashes ("----------") do not count. Same Yes convention as the calc-pack check."""
     for raw in responses_json.values():
         value = str(raw.get("value", "") if isinstance(raw, Mapping) else raw).strip().lower()
         if value.startswith("yes"):
@@ -84,19 +81,6 @@ def _project_completion(responses: Sequence[Any]) -> float:
     return sum(started) / len(started) if started else 0.0
 
 
-def _calc_pack_complete(responses: Mapping[str, Any], calc_ids: list[str]) -> bool:
-    # Faithful to the legacy rule: a tracked calc question answered "Yes".
-    # `startswith("yes")` matches every variant ("Yes", "Yes w/ Evidence",
-    # "Yes-(with Evidence)", …) and excludes No / N/A / blank / placeholder
-    # dashes ("----------") seen in the migrated data.
-    for qid in calc_ids:
-        raw = responses.get(qid) or {}
-        value = str(raw.get("value", "") if isinstance(raw, Mapping) else raw).strip().lower()
-        if value.startswith("yes"):
-            return True
-    return False
-
-
 async def build_overview(
     session: AsyncSession, director_id: uuid.UUID | None = None
 ) -> OverviewOut:
@@ -107,13 +91,12 @@ async def build_overview(
     project_ids = [p.id for p in projects]
     all_responses = await responses_repo.list_for_projects(session, project_ids)
 
-    construction_ids = await _construction_project_ids(session, projects, all_responses)
-
-    merged_by_project: dict[uuid.UUID, dict[str, Any]] = {}
-    for r in all_responses:
-        if r.project_id in construction_ids:
-            merged = merged_by_project.setdefault(r.project_id, {})
-            merged.update(r.responses or {})
+    construction_ids = await construction.construction_project_ids(
+        session, projects, all_responses
+    )
+    merged_by_project = construction.merge_construction_responses(
+        all_responses, construction_ids
+    )
 
     calc_ids = settings.calc_pack_ids
     buckets: dict[str, _Bucket] = {}
@@ -131,7 +114,7 @@ async def build_overview(
             buckets[key] = bucket
 
         bucket.construction_project_count += 1
-        if _calc_pack_complete(merged_by_project.get(p.id, {}), calc_ids):
+        if construction.calc_pack_complete(merged_by_project.get(p.id, {}), calc_ids):
             bucket.calc_package_complete_count += 1
         else:
             bucket.incomplete_projects.append(
@@ -279,13 +262,12 @@ async def build_overview(
         ),
     )
 
-    # Building Control coverage across scanned construction jobs. Scope to the
-    # same active (and already director-filtered) project set every other overview
-    # metric uses — `projects` is list_active filtered, so this excludes archived
-    # jobs and makes a separate director re-filter redundant.
-    active_ids = {p.id for p in projects}
-    bc_rows = [r for r in await bc_repo.list_all(session) if r.project_id in active_ids]
-    building_control = bc_service.summarize(bc_rows)
+    # Building Control / calc-pack coverage across the same construction jobs:
+    # the form verdict spread plus how well the advisory J: scan agrees with it.
+    scan_by_project = {r.project_id: r for r in await bc_repo.list_all(session)}
+    building_control = bc_service.summarize_jobs(
+        construction_ids, merged_by_project, calc_ids, scan_by_project
+    )
 
     total_count = sum(b.construction_project_count for b in director_out)
     total_complete = sum(b.calc_package_complete_count for b in director_out)
@@ -349,27 +331,3 @@ def _cmap_stage_counts_to_list(counts: Mapping[str, int]) -> list[StageCount]:
     if not_synced:
         out.append(StageCount(stage_name=NOT_SYNCED, project_count=not_synced))
     return out
-
-
-async def _construction_project_ids(
-    session: AsyncSession,
-    projects: Sequence[Any],
-    all_responses: Sequence[Any],
-) -> set[uuid.UUID]:
-    """v1: Site-stage activity is the construction proxy. cmap: project.cmap_stage."""
-    if settings.construction_source == "cmap":
-        return {
-            p.id
-            for p in projects
-            if p.cmap_stage and "construction" in p.cmap_stage.lower()
-        }
-
-    target_order = settings.construction_stage_order or SITE_STAGE_ORDER
-    stage = await stages_repo.get_by_order(session, target_order)
-    if stage is None:
-        return set()
-    return {
-        r.project_id
-        for r in all_responses
-        if r.stage_id == stage.id and bool(r.responses)
-    }
