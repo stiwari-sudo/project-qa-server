@@ -68,6 +68,20 @@ class Settings(BaseSettings):
     # data; refused outright when APP_ENV is production.
     seed_sample_data: bool = Field(default=False)
 
+    # CMAP integration (daily users + projects sync). OAuth2 client-credentials
+    # against CMap's identity server. Secrets live in .env only (never commit).
+    cmap_base_url: str = Field(default="https://api.cmaphq.com")
+    cmap_token_url: str = Field(default="https://id.cmaphq.com/connect/token")
+    cmap_resource: str = Field(default="https://api.cmaphq.com")
+    cmap_scope: str = Field(default="api_access")
+    cmap_client_id: str = Field(default="")
+    cmap_client_secret: str = Field(default="")
+    cmap_page_size: int = Field(default=100)
+    # Map CMap role/security-group names to our QA roles, comma-separated
+    # "CMapName=our_role" pairs, e.g. "Director=director,Associate=associate".
+    # A CMap role with no mapping grants NO role (fail closed → own-only).
+    cmap_role_map: str = Field(default="")
+
     # Deadline reminder offsets (days before deadline), comma-separated.
     reminder_offsets: str = Field(default="14,7,3,1")
 
@@ -112,6 +126,20 @@ class Settings(BaseSettings):
     @property
     def calc_pack_ids(self) -> list[str]:
         return [q.strip() for q in self.calc_pack_question_ids.split(",") if q.strip()]
+
+    @property
+    def cmap_enabled(self) -> bool:
+        return bool(self.cmap_client_id and self.cmap_client_secret)
+
+    @property
+    def cmap_role_map_parsed(self) -> dict[str, str]:
+        """CMap role name (lowercased) -> our QA role string."""
+        out: dict[str, str] = {}
+        for pair in self.cmap_role_map.split(","):
+            name, sep, role = pair.partition("=")
+            if sep and name.strip() and role.strip():
+                out[name.strip().lower()] = role.strip()
+        return out
 
     @property
     def reminder_offset_days(self) -> list[int]:

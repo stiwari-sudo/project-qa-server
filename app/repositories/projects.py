@@ -27,3 +27,17 @@ async def list_active(session: AsyncSession) -> Sequence[Project]:
         .order_by(Project.number)
     )
     return result.scalars().all()
+
+
+async def get_by_cmap_ref(session: AsyncSession, cmap_ref: str) -> Project | None:
+    result = await session.execute(select(Project).where(Project.cmap_ref == cmap_ref))
+    return result.scalar_one_or_none()
+
+
+async def get_by_number(session: AsyncSession, number: str) -> Project | None:
+    """First project with this number (number is indexed but not unique — used to
+    link a not-yet-CMAP-reffed migrated project to its CMap record)."""
+    result = await session.execute(
+        select(Project).where(Project.number == number).order_by(Project.created_at)
+    )
+    return result.scalars().first()
