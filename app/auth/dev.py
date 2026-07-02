@@ -21,6 +21,11 @@ class DevStubProvider(AuthProvider):
     """
 
     async def resolve_user(self, session: AsyncSession, request: Request) -> User:
+        # Settings validation already forbids the dev provider in production;
+        # this second gate covers a Settings object constructed some other way.
+        if settings.is_production:
+            raise AuthenticationError("Dev auth stub is disabled in production")
+
         email = (
             request.headers.get(DEV_USER_HEADER) or settings.dev_user_email
         ).strip().lower()

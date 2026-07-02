@@ -20,7 +20,11 @@ from app.models.user import User
 def get_auth_provider() -> AuthProvider:
     if settings.auth_provider == "azure":
         return AzureJwksProvider()
-    return DevStubProvider()
+    if settings.auth_provider == "dev":
+        return DevStubProvider()
+    # Settings validation makes this unreachable — but never fall back to the
+    # header-trusting dev stub on an unrecognised value.
+    raise RuntimeError(f"Unknown auth_provider {settings.auth_provider!r}")
 
 
 async def get_current_user(

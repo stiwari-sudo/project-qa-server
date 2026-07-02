@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load .env from the project root (projectqa-api/) regardless of the process's
@@ -73,6 +73,32 @@ class Settings(BaseSettings):
     smtp_password: str = Field(default="")
     smtp_from: str = Field(default="qa-noreply@hts.uk.com")
     smtp_tls: bool = Field(default=True)
+
+    @property
+    def is_production(self) -> bool:
+        return self.app_env.strip().lower() in ("production", "prod")
+
+    @model_validator(mode="after")
+    def _validate_auth_provider(self) -> Settings:
+        """Fail closed on auth misconfiguration instead of booting with the
+        dev stub, which trusts a client-supplied header and would hand any
+        caller director-level access to the real dataset."""
+        provider = self.auth_provider.strip().lower()
+        if provider not in ("dev", "azure"):
+            raise ValueError(
+                f"AUTH_PROVIDER must be 'dev' or 'azure', got {self.auth_provider!r}"
+            )
+        self.auth_provider = provider
+        if self.is_production and provider != "azure":
+            raise ValueError(
+                "AUTH_PROVIDER must be 'azure' when APP_ENV is production — the dev "
+                "stub resolves users from a client-supplied header"
+            )
+        if provider == "azure" and not (self.azure_tenant_id and self.azure_client_id):
+            raise ValueError(
+                "AUTH_PROVIDER=azure requires AZURE_TENANT_ID and AZURE_CLIENT_ID"
+            )
+        return self
 
     @property
     def cors_origin_list(self) -> list[str]:
