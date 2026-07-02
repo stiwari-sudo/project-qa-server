@@ -98,12 +98,14 @@ def _norm_question(q: dict[str, Any]) -> dict[str, Any]:
         "text": text,
         "task_number": q.get("task_number"),
         "input_type": str(q.get("input_type") or "text"),
-        "options": list(q.get("options") or []),
+        # Options + trigger get the same canonical casing as answer values —
+        # legacy forms carry lowercase "Yes w/ evidence" option strings.
+        "options": [_canon_option(o) for o in (q.get("options") or [])],
         "help_text": q.get("help_text"),
         "hrb_flag": bool(q.get("hrb_flag"))
         or any(h in text.lower() for h in _HRB_HINTS),
         "has_subform": bool(norm_sub is not None),
-        "trigger_value": q.get("trigger_value"),
+        "trigger_value": _canon_option(q.get("trigger_value")),
         "subform": norm_sub,
     }
 
@@ -133,10 +135,16 @@ _PREFIX_MAP = (
     ("q_pre_tender_", "q_pretender_"),
     ("q_pre_construction_", "q_precon_"),
 )
-# Stored values vs the forms' option strings ("Yes w/ evidence" etc.).
+# Stored values vs the forms' option strings. Canonical casing comes from
+# seeds.forms.EVIDENCE_OPTIONS ("Yes w/ Evidence") — the web matches options
+# case-sensitively, so any drift here renders as an unanswered question.
+# Looked up via s.lower(), so legacy lowercase-e variants normalise too
+# (tests/test_migrate_values.py locks map outputs to the seeded options).
 _VALUE_MAP = {
-    "yes-(with evidence)": "Yes w/ evidence",
-    "yes-(without evidence)": "Yes w/o evidence",
+    "yes-(with evidence)": "Yes w/ Evidence",
+    "yes-(without evidence)": "Yes w/o Evidence",
+    "yes w/ evidence": "Yes w/ Evidence",
+    "yes w/o evidence": "Yes w/o Evidence",
 }
 _BLANK_RE = re.compile(r"^[-\s]*$")  # "----------" placeholder == unanswered
 
@@ -167,6 +175,13 @@ def _clean_value(value: Any) -> str:
     if _BLANK_RE.match(s):
         return ""
     return _VALUE_MAP.get(s.lower(), s)
+
+
+def _canon_option(value: Any) -> Any:
+    """Canonical casing for a form option / trigger string (non-strings pass)."""
+    if not isinstance(value, str):
+        return value
+    return _VALUE_MAP.get(value.strip().lower(), value)
 
 
 def _rekey_and_clean(
