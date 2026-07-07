@@ -76,6 +76,9 @@ class Settings(BaseSettings):
     cmap_scope: str = Field(default="api_access")
     cmap_client_id: str = Field(default="")
     cmap_client_secret: str = Field(default="")
+    # CMap is multi-tenant; each API call carries a `tenant_id` header (the GUID
+    # from GET /v1/tenants). Not required for the token request itself.
+    cmap_tenant_id: str = Field(default="")
     cmap_page_size: int = Field(default=100)
     # Map CMap role/security-group names to our QA roles, comma-separated
     # "CMapName=our_role" pairs, e.g. "Director=director,Associate=associate".

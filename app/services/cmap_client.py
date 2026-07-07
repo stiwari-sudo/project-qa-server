@@ -22,7 +22,6 @@ logger = get_logger(__name__)
 
 # Response envelope keys CMap-style APIs use to wrap a page of records.
 _ITEM_KEYS = ("items", "data", "results", "value", "records")
-_MAX_PAGES = 1000  # safety backstop against a pagination bug looping forever
 
 
 class CmapError(RuntimeError):
@@ -64,7 +63,9 @@ class CmapClient:
             },
         )
         if resp.status_code != 200:
-            raise CmapError(f"CMap token request failed ({resp.status_code})")
+            raise CmapError(
+                f"CMap token request failed ({resp.status_code}): {resp.text[:300]}"
+            )
         data = resp.json()
         token = data.get("access_token")
         if not token:
@@ -77,29 +78,22 @@ class CmapClient:
     async def get_all(
         self, path: str, *, limit: int | None = None
     ) -> list[dict[str, Any]]:
-        """Every record from a v1 list endpoint (e.g. ``/v1/Users``), following
-        page/pageSize pagination until a short/empty page. ``limit`` caps the
-        total fetched (used by --limit / --dry-run sampling)."""
+        """Every record from a v1 list endpoint (e.g. ``/v1/Users``). CMap v1 list
+        endpoints return the FULL collection in one response — pagination params
+        (page/skip/take/offset) are ignored — so this is a single GET. ``limit``
+        slices the result for --limit / --dry-run sampling."""
         url = settings.cmap_base_url.rstrip("/") + path
-        page_size = settings.cmap_page_size
-        out: list[dict[str, Any]] = []
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:
             token = await self._token_for(client)
             headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-            for page in range(1, _MAX_PAGES + 1):
-                resp = await client.get(
-                    url,
-                    headers=headers,
-                    params={"page": page, "pageSize": page_size},
+            # CMap resolves the account from this header, not the URL — without it
+            # every /v1 call returns 403 "Unspecified Tenant".
+            if settings.cmap_tenant_id:
+                headers["tenant_id"] = settings.cmap_tenant_id
+            resp = await client.get(url, headers=headers)
+            if resp.status_code != 200:
+                raise CmapError(
+                    f"CMap GET {path} failed ({resp.status_code}): {resp.text[:300]}"
                 )
-                if resp.status_code != 200:
-                    raise CmapError(
-                        f"CMap GET {path} page {page} failed ({resp.status_code})"
-                    )
-                items = _extract_items(resp.json())
-                out.extend(items)
-                if limit is not None and len(out) >= limit:
-                    return out[:limit]
-                if len(items) < page_size:
-                    break
-        return out
+            items = _extract_items(resp.json())
+        return items[:limit] if limit is not None else items

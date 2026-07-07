@@ -23,7 +23,7 @@ from app.models.project import Project
 from app.models.user import User
 from app.repositories import projects as projects_repo
 from app.repositories import users as users_repo
-from app.services.cmap_client import CmapClient
+from app.services.cmap_client import CmapClient, CmapError
 
 logger = get_logger(__name__)
 
@@ -191,6 +191,7 @@ class SyncSummary:
     unresolved_people: int = 0
     sample_user_keys: list[str] = field(default_factory=list)
     sample_project_keys: list[str] = field(default_factory=list)
+    projects_error: str | None = None
     dry_run: bool = False
 
 
@@ -240,7 +241,14 @@ async def run_sync(
             by_cmap_id[mapped.cmap_id] = user
         by_email[mapped.email] = user
 
-    projects_raw = await client.get_all("/v1/Projects", limit=limit)
+    # Projects is fetched independently: a CMap-side failure here must not lose
+    # the users we've already staged (they still commit).
+    projects_raw: list[dict[str, Any]] = []
+    try:
+        projects_raw = await client.get_all("/v1/Projects", limit=limit)
+    except CmapError as exc:
+        logger.warning("cmap.projects_fetch_failed", error=str(exc))
+        summary.projects_error = str(exc)
     if projects_raw:
         summary.sample_project_keys = sorted(projects_raw[0].keys())
 

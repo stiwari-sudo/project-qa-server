@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.core.config import settings  # noqa: E402
 from app.core.db import SessionLocal  # noqa: E402
+from app.services.cmap_client import CmapError  # noqa: E402
 from app.services.cmap_sync import run_sync  # noqa: E402
 
 
@@ -42,8 +43,12 @@ async def main() -> None:
         )
         sys.exit(1)
 
-    async with SessionLocal() as session:
-        summary = await run_sync(session, dry_run=args.dry_run, limit=args.limit)
+    try:
+        async with SessionLocal() as session:
+            summary = await run_sync(session, dry_run=args.dry_run, limit=args.limit)
+    except CmapError as exc:
+        print(f"\nCMAP request failed: {exc}", file=sys.stderr)
+        sys.exit(2)
 
     s = summary
     suffix = " (DRY RUN — nothing written)" if s.dry_run else ""
@@ -59,6 +64,8 @@ async def main() -> None:
         file=sys.stderr,
     )
     print(f"unresolved director/manager refs: {s.unresolved_people}", file=sys.stderr)
+    if s.projects_error:
+        print(f"projects fetch FAILED (users still synced): {s.projects_error}", file=sys.stderr)
     # The first dry run confirms the real CMap field names → finalise the mapping.
     if s.sample_user_keys:
         print(f"\nsample USER keys   : {', '.join(s.sample_user_keys)}", file=sys.stderr)
