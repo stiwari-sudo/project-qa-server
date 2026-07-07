@@ -88,6 +88,11 @@ class Settings(BaseSettings):
     # own-only (everyone in CMap is at least staff); "" = role-less.
     cmap_default_role: str = Field(default="engineer")
 
+    # Project-team membership feed — HTS TechandData resourcing, server-to-server.
+    # URL of the /api/resourcing/project-members/ endpoint + its shared secret.
+    resourcing_feed_url: str = Field(default="")
+    resourcing_feed_key: str = Field(default="")
+
     # Deadline reminder offsets (days before deadline), comma-separated.
     reminder_offsets: str = Field(default="14,7,3,1")
 
@@ -136,6 +141,10 @@ class Settings(BaseSettings):
     @property
     def cmap_enabled(self) -> bool:
         return bool(self.cmap_client_id and self.cmap_client_secret)
+
+    @property
+    def resourcing_enabled(self) -> bool:
+        return bool(self.resourcing_feed_url and self.resourcing_feed_key)
 
     @property
     def cmap_role_map_parsed(self) -> dict[str, str]:

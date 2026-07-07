@@ -45,10 +45,26 @@ async def get(
     return result.scalar_one_or_none()
 
 
+async def list_pairs(
+    session: AsyncSession, source: str | None = None
+) -> set[tuple[uuid.UUID, uuid.UUID]]:
+    """(project_id, user_id) membership pairs — all of them, or only those from
+    a given ``source``. The resourcing sync reconciles its own source and checks
+    the full set so it never duplicates a manually-granted membership."""
+    stmt = select(ProjectMember.project_id, ProjectMember.user_id)
+    if source is not None:
+        stmt = stmt.where(ProjectMember.source == source)
+    result = await session.execute(stmt)
+    return {(row.project_id, row.user_id) for row in result.all()}
+
+
 async def add(
-    session: AsyncSession, project_id: uuid.UUID, user_id: uuid.UUID
+    session: AsyncSession,
+    project_id: uuid.UUID,
+    user_id: uuid.UUID,
+    source: str = "manual",
 ) -> ProjectMember:
-    member = ProjectMember(project_id=project_id, user_id=user_id)
+    member = ProjectMember(project_id=project_id, user_id=user_id, source=source)
     session.add(member)
     await session.flush()
     return member

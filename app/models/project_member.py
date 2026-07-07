@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import ForeignKey, Index, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,8 +13,11 @@ from app.models.user import User
 
 class ProjectMember(UUIDPkMixin, TimestampMixin, Base):
     """A user granted visibility of a project. Drives the "my projects" scope
-    for engineers; view-all roles ignore membership. Assignment is manual for
-    now and will later be fed from SharePoint."""
+    for engineers; view-all roles ignore membership.
+
+    ``source`` records who created the membership: "resourcing" rows are
+    reconciled by the TechandData resourcing sync, "manual" rows are set by an
+    admin and are never touched by the sync — so the two coexist safely."""
 
     __tablename__ = "project_members"
 
@@ -27,6 +30,9 @@ class ProjectMember(UUIDPkMixin, TimestampMixin, Base):
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+    )
+    source: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="manual", server_default="manual"
     )
 
     project: Mapped[Project] = relationship("Project", foreign_keys=[project_id])
