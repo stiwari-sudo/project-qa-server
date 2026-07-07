@@ -157,12 +157,21 @@ def map_project(record: dict[str, Any]) -> MappedProject:
     )
 
 
-def resolve_role(cmap_role: str | None, role_map: dict[str, str]) -> list[str]:
-    """Our QA role(s) for a CMap role name — [] when unmapped (fail closed)."""
-    if not cmap_role:
-        return []
-    mapped = role_map.get(cmap_role.strip().lower())
-    return [mapped] if mapped else []
+def resolve_role(
+    cmap_role: str | None,
+    role_map: dict[str, str],
+    default_role: str = "",
+) -> list[str]:
+    """Our QA role for a CMap jobTitle. ``role_map`` is scanned IN ORDER; the
+    first entry whose key appears in the (lowercased) title wins — so list the
+    most-specific rules first ("associate director" before "director"). Falls
+    back to ``default_role`` ([] when that is empty)."""
+    if cmap_role:
+        title = cmap_role.strip().lower()
+        for key, role in role_map.items():
+            if key in title:
+                return [role]
+    return [default_role] if default_role else []
 
 
 def _resolve_person(
@@ -192,6 +201,7 @@ class SyncSummary:
     sample_user_keys: list[str] = field(default_factory=list)
     sample_project_keys: list[str] = field(default_factory=list)
     projects_error: str | None = None
+    roles_assigned: dict[str, int] = field(default_factory=dict)
     dry_run: bool = False
 
 
@@ -221,7 +231,9 @@ async def run_sync(
         if not mapped.email:
             summary.users_skipped += 1
             continue
-        roles = resolve_role(mapped.cmap_role, role_map)
+        roles = resolve_role(mapped.cmap_role, role_map, settings.cmap_default_role)
+        tally = roles[0] if roles else "(none)"
+        summary.roles_assigned[tally] = summary.roles_assigned.get(tally, 0) + 1
         user = await users_repo.get_by_email(session, mapped.email)
         if user is None:
             user = await users_repo.create(

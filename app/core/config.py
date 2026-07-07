@@ -80,10 +80,13 @@ class Settings(BaseSettings):
     # from GET /v1/tenants). Not required for the token request itself.
     cmap_tenant_id: str = Field(default="")
     cmap_page_size: int = Field(default=100)
-    # Map CMap role/security-group names to our QA roles, comma-separated
-    # "CMapName=our_role" pairs, e.g. "Director=director,Associate=associate".
-    # A CMap role with no mapping grants NO role (fail closed → own-only).
+    # Map CMap jobTitles to our QA roles. Comma-separated "substring=role" rules,
+    # scanned IN ORDER (list most-specific first, e.g. "associate director"
+    # before "director"); the first rule whose text appears in the jobTitle wins.
     cmap_role_map: str = Field(default="")
+    # Role for a CMap user whose jobTitle matches no rule above. "engineer" =
+    # own-only (everyone in CMap is at least staff); "" = role-less.
+    cmap_default_role: str = Field(default="engineer")
 
     # Deadline reminder offsets (days before deadline), comma-separated.
     reminder_offsets: str = Field(default="14,7,3,1")

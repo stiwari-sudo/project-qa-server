@@ -77,6 +77,31 @@ def test_resolve_role_maps_known_and_drops_unknown() -> None:
     assert resolve_role(None, role_map) == []
 
 
+def test_resolve_role_ordered_substring_with_default() -> None:
+    # Mirrors the real config: most-specific rules first, engineer default.
+    role_map = {
+        "founding director": "founding_director",
+        "associate director": "associate_director",
+        "senior associate": "senior_associate",
+        "director": "director",
+        "associate": "associate",
+        "it support": "admin",
+    }
+    assert resolve_role("Founding Director", role_map, "engineer") == ["founding_director"]
+    # "associate director" wins over "director"/"associate" via ordering.
+    assert resolve_role("Associate Director", role_map, "engineer") == ["associate_director"]
+    assert resolve_role("Finance Director", role_map, "engineer") == ["director"]
+    # Compound titles match on the contained tier.
+    assert resolve_role("Senior Associate / Head of People", role_map, "engineer") == [
+        "senior_associate"
+    ]
+    assert resolve_role("Associate Marketing Manager", role_map, "engineer") == ["associate"]
+    assert resolve_role("Senior IT Support", role_map, "engineer") == ["admin"]
+    # No rule matches → the default role (own-only), not role-less.
+    assert resolve_role("Senior Structural Engineer", role_map, "engineer") == ["engineer"]
+    assert resolve_role("Structural Engineer", role_map, "") == []
+
+
 def test_extract_items_handles_array_and_envelopes() -> None:
     assert _extract_items([{"a": 1}]) == [{"a": 1}]
     assert _extract_items({"items": [{"a": 1}]}) == [{"a": 1}]
@@ -145,6 +170,7 @@ async def test_sync_upserts_users_and_projects_with_roles_and_director(
     session_factory: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(settings, "cmap_role_map", "Director=director")
+    monkeypatch.setattr(settings, "cmap_default_role", "engineer")
     client = FakeCmapClient(
         users=[
             {"id": "u1", "email": "Dir@hts.uk.com", "fullName": "Dir Person",
@@ -168,8 +194,8 @@ async def test_sync_upserts_users_and_projects_with_roles_and_director(
         director = await users_repo.get_by_email(s, "dir@hts.uk.com")
         engineer = await users_repo.get_by_email(s, "eng@hts.uk.com")
         assert director is not None and director.roles == ["director"]
-        # Unmapped CMap role → no QA role (fail closed).
-        assert engineer is not None and engineer.roles == []
+        # Unmapped title → the default role (own-only engineer).
+        assert engineer is not None and engineer.roles == ["engineer"]
 
         project = await projects_repo.get_by_cmap_ref(s, "p1")
         assert project is not None

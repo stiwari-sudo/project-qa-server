@@ -63,6 +63,12 @@ async def main() -> None:
         f"updated={s.projects_updated} skipped={s.projects_skipped}",
         file=sys.stderr,
     )
+    if s.roles_assigned:
+        dist = ", ".join(
+            f"{k}={v}"
+            for k, v in sorted(s.roles_assigned.items(), key=lambda kv: -kv[1])
+        )
+        print(f"roles      : {dist}", file=sys.stderr)
     print(f"unresolved director/manager refs: {s.unresolved_people}", file=sys.stderr)
     if s.projects_error:
         print(f"projects fetch FAILED (users still synced): {s.projects_error}", file=sys.stderr)
