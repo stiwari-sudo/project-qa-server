@@ -252,3 +252,47 @@ async def test_overview_requires_view_all(env: Env) -> None:
     assert r.status_code == 403
     r = await env.client.get("/api/v1/overview", headers=DIR)
     assert r.status_code == 200
+
+
+async def test_event_log_mine_scope(env: Env) -> None:
+    # Engineer logs an event on their own project.
+    r = await env.client.post(
+        "/api/v1/event-logs",
+        json={
+            "project_id": env.p1,
+            "description": "my own event",
+            "category_of_impact": "Cost",
+            "discipline": "Structures",
+        },
+        headers=ENG,
+    )
+    assert r.status_code == 201
+
+    # mine=true returns ONLY events this user logged — not the pre-seeded e1
+    # (logged_by=None) on the same project, nor the foreign e2.
+    r = await env.client.get("/api/v1/event-logs?mine=true", headers=ENG)
+    assert r.status_code == 200
+    assert [e["description"] for e in r.json()] == ["my own event"]
+
+    # A director's personal view is empty — they logged nothing here.
+    r = await env.client.get("/api/v1/event-logs?mine=true", headers=DIR)
+    assert r.status_code == 200
+    assert r.json() == []
+
+
+async def test_hrb_mine_scope(env: Env) -> None:
+    # Engineer records an HRB determination on their own project.
+    r = await env.client.post(
+        "/api/v1/hrb",
+        json={"project_id": env.p1, "is_high_risk": True},
+        headers=ENG,
+    )
+    assert r.status_code == 201
+
+    r = await env.client.get("/api/v1/hrb?mine=true", headers=ENG)
+    assert r.status_code == 200
+    assert {row["project_id"] for row in r.json()} == {env.p1}
+
+    r = await env.client.get("/api/v1/hrb?mine=true", headers=DIR)
+    assert r.status_code == 200
+    assert r.json() == []

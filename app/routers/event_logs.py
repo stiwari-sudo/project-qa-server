@@ -31,7 +31,18 @@ async def list_event_logs(
     project: uuid.UUID | None = None,
     stage: uuid.UUID | None = None,
     discipline: Discipline | None = None,
+    mine: bool = False,
 ) -> list[EventLogOut]:
+    # mine=true: the personal "events I logged" view (any project). Otherwise
+    # scope to the user's visible projects (view-all sees everything).
+    if mine:
+        return await event_logs_service.list_event_logs(
+            session,
+            project_id=project,
+            stage_id=stage,
+            discipline=discipline,
+            logged_by_id=user.id,
+        )
     if project is not None:
         await members_service.assert_can_view_project(session, user, project)
     visible = await members_service.visible_project_ids(session, user)

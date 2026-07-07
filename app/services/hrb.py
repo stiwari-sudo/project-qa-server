@@ -21,6 +21,7 @@ async def list_hrb(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     is_high_risk: bool | None = None,
+    checked_by_id: uuid.UUID | None = None,
     visible_project_ids: set[uuid.UUID] | None = None,
 ) -> list[HrbOut]:
     rows = await hrb_repo.list_filtered(
@@ -28,6 +29,7 @@ async def list_hrb(
         project_id=project_id,
         stage_id=stage_id,
         is_high_risk=is_high_risk,
+        checked_by_id=checked_by_id,
         visible_project_ids=visible_project_ids,
     )
     # Group each project's stages together in QA lifecycle order.

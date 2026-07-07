@@ -22,7 +22,17 @@ async def list_hrb(
     project: uuid.UUID | None = None,
     stage: uuid.UUID | None = None,
     is_high_risk: bool | None = None,
+    mine: bool = False,
 ) -> list[HrbOut]:
+    # mine=true: the personal "HRB determinations I recorded" view (any project).
+    if mine:
+        return await hrb_service.list_hrb(
+            session,
+            project_id=project,
+            stage_id=stage,
+            is_high_risk=is_high_risk,
+            checked_by_id=user.id,
+        )
     # Mirrors stats.py: explicit ?project= is asserted; the unscoped register
     # is filtered to the user's visible projects (None = view-all).
     if project is not None:

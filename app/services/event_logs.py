@@ -29,6 +29,7 @@ async def list_event_logs(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     discipline: Discipline | None = None,
+    logged_by_id: uuid.UUID | None = None,
     visible_project_ids: set[uuid.UUID] | None = None,
 ) -> list[EventLogOut]:
     rows = await event_logs_repo.list_filtered(
@@ -36,6 +37,7 @@ async def list_event_logs(
         project_id=project_id,
         stage_id=stage_id,
         discipline=discipline,
+        logged_by_id=logged_by_id,
         visible_project_ids=visible_project_ids,
     )
     return [event_log_to_out(r) for r in rows]

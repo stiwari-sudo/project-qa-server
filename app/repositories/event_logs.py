@@ -29,12 +29,15 @@ async def list_filtered(
     project_id: uuid.UUID | None = None,
     stage_id: uuid.UUID | None = None,
     discipline: Discipline | None = None,
+    logged_by_id: uuid.UUID | None = None,
     visible_project_ids: set[uuid.UUID] | None = None,
 ) -> Sequence[QaEventLog]:
     stmt = select(QaEventLog).options(*_LOAD).order_by(QaEventLog.created_at.desc())
     # None = no restriction (view-all); an empty set correctly yields no rows.
     if visible_project_ids is not None:
         stmt = stmt.where(QaEventLog.project_id.in_(visible_project_ids))
+    if logged_by_id is not None:
+        stmt = stmt.where(QaEventLog.logged_by_id == logged_by_id)
     if project_id is not None:
         stmt = stmt.where(QaEventLog.project_id == project_id)
     if stage_id is not None:
